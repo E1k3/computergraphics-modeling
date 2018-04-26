@@ -7,7 +7,7 @@ find_package(assimp REQUIRED)
 find_package(GLEW REQUIRED)
 # find_package(glm REQUIRED)
 
-#include_directories(${OPENGL_INCLUDE_DIR})
+# include_directories(${OPENGL_INCLUDE_DIR})
 
 add_executable(assignment1 main.cpp application.cpp inputmanager.cpp)
 target_link_libraries(assignment1 OpenGL::GL GLEW::GLEW glfw assimp)
