@@ -27,9 +27,9 @@ namespace cg
 			struct Vertex
 			{
 				HalfEdge* edge;
-				glm::vec3* position;
-				glm::vec3* normal;
-				glm::vec2* texture_coordinate;
+				glm::vec3* position{nullptr};
+				glm::vec3* normal{nullptr};
+				glm::vec2* texture_coordinate{nullptr};
 			};
 
 			explicit HalfEdgeMesh(std::string file_path);
@@ -37,14 +37,16 @@ namespace cg
 			const std::vector<glm::vec3>& get_positions() const;
 			const std::vector<glm::vec3>& get_normals() const;
 			const std::vector<glm::vec2>& get_texture_coordinates() const;
-			const std::vector<int>& get_indices() const;
+			const std::vector<unsigned int>& get_indices() const;
 
 		private:
+			// Raw data, openGL renderable
 			std::vector<glm::vec3> positions;
 			std::vector<glm::vec3> normals;
 			std::vector<glm::vec2> texture_coordinates;
-			std::vector<int> indices;
+			std::vector<unsigned int> indices;
 
+			// HalfEdge structure
 			std::vector<HalfEdge> half_edges;
 			std::vector<Face> faces;
 			std::vector<Vertex> vertices;
