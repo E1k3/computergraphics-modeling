@@ -11,13 +11,7 @@ namespace cg
 	class HalfEdgeMesh
 	{
 		public:
-			struct HalfEdge
-			{
-				HalfEdge* next_edge;
-				HalfEdge* companion_edge;
-				Face* face;
-				Vertex* next_vertex;
-			};
+			struct HalfEdge;
 
 			struct Face
 			{
@@ -30,6 +24,14 @@ namespace cg
 				glm::vec3* position{nullptr};
 				glm::vec3* normal{nullptr};
 				glm::vec2* texture_coordinate{nullptr};
+			};
+
+			struct HalfEdge
+			{
+				HalfEdge* next_edge;
+				HalfEdge* companion_edge;
+				Face* face;
+				Vertex* next_vertex;
 			};
 
 			explicit HalfEdgeMesh(std::string file_path);
@@ -53,4 +55,4 @@ namespace cg
 	};
 }
 
-#define HALF_EDGE_MESH_HPP
+#endif // HALF_EDGE_MESH_HPP

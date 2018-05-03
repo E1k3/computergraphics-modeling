@@ -11,11 +11,13 @@ find_package(GLEW REQUIRED)
 add_executable(assignment1
 	main.cpp
 	application.cpp
-	inputmanager.cpp)
+	inputmanager.cpp
+	half_edge_mesh.cpp)
 
 target_include_directories(assignment1
 	PUBLIC ${OPENGL_INCLUDE_DIR}
-	PUBLIC ${GLEW_INCLUDE_DIRS})
+	PUBLIC ${GLEW_INCLUDE_DIRS}
+	PUBLIC ${ASSIMP_INCLUDE_DIRS})
 
 target_link_libraries(assignment1
 	OpenGL::GL
@@ -24,6 +26,8 @@ target_link_libraries(assignment1
 	assimp)
 
 target_compile_features(assignment1 PUBLIC cxx_std_14)
+
+target_compile_options(assignment1 PRIVATE -Wall)
 
 add_custom_command(TARGET assignment1 POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
