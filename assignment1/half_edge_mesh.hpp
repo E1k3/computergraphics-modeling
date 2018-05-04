@@ -6,6 +6,7 @@
 #include "glm/glm.hpp"
 
 #include <vector>
+#include <list>
 #include <string>
 
 namespace cg
@@ -17,30 +18,32 @@ namespace cg
 
 			struct Face
 			{
-				HalfEdge* edge;
+				HalfEdge* edge{nullptr};
 			};
 
 			struct Vertex
 			{
-				HalfEdge* edge;
-				glm::vec3* position{nullptr};
-				glm::vec3* normal{nullptr};
-				glm::vec2* texture_coordinate{nullptr};
+				HalfEdge* edge{nullptr};
+				glm::vec3 position{0.f};
+				glm::vec3 normal{0.f};
+				glm::vec2 texture_coordinate{0.f};
 			};
 
 			struct HalfEdge
 			{
-				HalfEdge* next_edge;
-				HalfEdge* companion_edge;
-				Face* face;
-				Vertex* next_vertex;
+				HalfEdge* next_edge{nullptr};
+				HalfEdge* companion_edge{nullptr};
+				Face* face{nullptr};
+				Vertex* next_vertex{nullptr};
 			};
 
 			explicit HalfEdgeMesh(const SoupMesh& soup);
 
+			explicit operator SoupMesh() const;
+
 		private:
 			// HalfEdge structure
-			std::vector<HalfEdge> half_edges;
+			std::list<HalfEdge> half_edges;
 			std::vector<Face> faces;
 			std::vector<Vertex> vertices;
 	};
