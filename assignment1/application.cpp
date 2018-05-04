@@ -1,5 +1,8 @@
 #include "application.hpp"
 
+#include "soup_mesh.hpp"
+#include "glutil.hpp"
+
 #include "glm/glm.hpp"
 
 #include <iostream>
@@ -63,17 +66,62 @@ namespace cg
 	{
 		setup_input();
 
+
+		// Load mesh
+		auto mesh = SoupMesh{"assets/cube.obj"};
+		GLuint vao;
+		GLuint vbo[2];
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		glGenBuffers(2, vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.get_positions().size(), mesh.get_positions().data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh.get_indices().size(), mesh.get_indices().data(), GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+		// Load shader
+		auto program = glCreateProgram();
+
+		auto vs_path = std::string{"shaders/vertex_shader.glsl"};
+		auto vs = glCreateShader(GL_VERTEX_SHADER);
+		glutil::load_compile_shader(vs, {vs_path});
+		glAttachShader(program, vs);
+
+		auto fs_path = std::string{"shaders/fragment_shader.glsl"};
+		auto fs = glCreateShader(GL_FRAGMENT_SHADER);
+		glutil::load_compile_shader(fs, {fs_path});
+		glAttachShader(program, fs);
+
+		glLinkProgram(program);
+		glUseProgram(program);
+		glDetachShader(program, vs);
+		glDetachShader(program, fs);
+
+		glEnable(GL_DEPTH_TEST);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 		while(!glfwWindowShouldClose(window.get()))
 		{
-			glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// TODO:DO STUFF
+			glDrawElements(GL_TRIANGLES, mesh.get_indices().size(), GL_UNSIGNED_INT, nullptr);
 			glClearColor(input.get_cursor_position().x / 1000, input.get_cursor_position().y / 1000, input.get_cursor_position().y / 2000, 1.f);
 
 			glfwSwapBuffers(window.get());
 			input.unstick();
 			glfwPollEvents();
 		}
+
+		glDeleteVertexArrays(1, &vao);
+		glDeleteBuffers(2, vbo);
+		glDeleteShader(vs);
+		glDeleteShader(fs);
+		glDeleteProgram(program);
 	}
 
 	void Application::error_callback(int errorcode, const char* description)

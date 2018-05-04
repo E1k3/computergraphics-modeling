@@ -13,7 +13,8 @@ add_executable(assignment1
 	application.cpp
 	inputmanager.cpp
 	soup_mesh.cpp
-	half_edge_mesh.cpp)
+	half_edge_mesh.cpp
+	glutil.cpp)
 
 target_include_directories(assignment1
 	PUBLIC ${OPENGL_INCLUDE_DIR}
