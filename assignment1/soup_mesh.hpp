@@ -11,6 +11,7 @@ namespace cg
 	class SoupMesh
 	{
 		public:
+			explicit SoupMesh() = default;
 			explicit SoupMesh(const std::string& file_path);
 
 			const std::vector<glm::vec3>& get_positions() const;
@@ -19,6 +20,13 @@ namespace cg
 
 			const std::vector<std::vector<unsigned int>>& get_faces() const;
 			const std::vector<unsigned int>& get_indices() const;
+
+			std::vector<glm::vec3>& get_positions();
+			std::vector<glm::vec3>& get_normals();
+			std::vector<glm::vec2>& get_texture_coordinates();
+
+			std::vector<std::vector<unsigned int>>& get_faces();
+			std::vector<unsigned int>& get_indices();
 
 		private:
 			std::vector<glm::vec3> positions;

@@ -117,4 +117,29 @@ namespace cg
 	{
 		return indices;
 	}
+
+	std::vector<glm::vec3>& SoupMesh::get_positions()
+	{
+		return positions;
+	}
+
+	std::vector<glm::vec3>& SoupMesh::get_normals()
+	{
+		return normals;
+	}
+
+	std::vector<glm::vec2>& SoupMesh::get_texture_coordinates()
+	{
+		return texture_coordinates;
+	}
+
+	std::vector<std::vector<unsigned int>>& SoupMesh::get_faces()
+	{
+		return faces;
+	}
+
+	std::vector<unsigned int>& SoupMesh::get_indices()
+	{
+		return indices;
+	}
 }
