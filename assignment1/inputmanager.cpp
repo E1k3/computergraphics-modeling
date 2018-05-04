@@ -2,22 +2,23 @@
 
 namespace cg
 {
-	void InputManager::reset()
+	void InputManager::unstick()
 	{
-		reset_keys();
-		reset_cursor();
-		reset_scroll();
+		unstick_keys();
+		unstick_cursor();
+		unstick_scroll();
 	}
 
-	void InputManager::reset_keys()
+	void InputManager::unstick_keys()
 	{
 		for(auto& key : pressed_keys)
 			key.second = key.second && !released_keys[key.first];
+
 		for(auto& key : released_keys)
 			key.second = key.second || !pressed_keys[key.first];
 	}
 
-	void InputManager::reset_key(int keycode)
+	void InputManager::unstick_key(int keycode)
 	{
 		pressed_keys[keycode] = pressed_keys[keycode] && !released_keys[keycode];
 		released_keys[keycode] = released_keys[keycode] || !pressed_keys[keycode];
@@ -39,7 +40,7 @@ namespace cg
 		return pressed_keys[keycode];
 	}
 
-	void InputManager::reset_cursor()
+	void InputManager::unstick_cursor()
 	{
 		cursor_offset = glm::vec2{0.f};
 	}
@@ -53,6 +54,7 @@ namespace cg
 	{
 		if(!ignore_cursor)
 			cursor_offset += position - cursor_position;
+
 		cursor_position = position;
 
 		ignore_cursor = false;
@@ -68,7 +70,7 @@ namespace cg
 		return cursor_offset;
 	}
 
-	void InputManager::reset_scroll()
+	void InputManager::unstick_scroll()
 	{
 		scroll_offset = glm::ivec2{0};
 	}

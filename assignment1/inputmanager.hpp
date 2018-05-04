@@ -10,21 +10,21 @@ namespace cg
 	class InputManager
 	{
 		public:
-			void reset();
+			void unstick();
 
-			void reset_keys();
-			void reset_key(int keycode);
+			void unstick_keys();
+			void unstick_key(int keycode);
 			void key_pressed(int keycode);
 			void key_released(int keycode);
 			bool get_key(int keycode);
 			
-			void reset_cursor();
+			void unstick_cursor();
 			void ignore_cursor_once();
 			void cursor_moved(glm::vec2 position);
 			glm::vec2 get_cursor_position();
 			glm::vec2 get_cursor_offset();
 			
-			void reset_scroll();
+			void unstick_scroll();
 			void mouse_scrolled(glm::ivec2 offset);
 			glm::ivec2 get_scroll_offset();
 

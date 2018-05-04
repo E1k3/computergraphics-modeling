@@ -1,6 +1,8 @@
 #ifndef HALF_EDGE_MESH_HPP
 #define HALF_EDGE_MESH_HPP
 
+#include "soup_mesh.hpp"
+
 #include "glm/glm.hpp"
 
 #include <vector>
@@ -34,20 +36,9 @@ namespace cg
 				Vertex* next_vertex;
 			};
 
-			explicit HalfEdgeMesh(std::string file_path);
-
-			const std::vector<glm::vec3>& get_positions() const;
-			const std::vector<glm::vec3>& get_normals() const;
-			const std::vector<glm::vec2>& get_texture_coordinates() const;
-			const std::vector<unsigned int>& get_indices() const;
+			explicit HalfEdgeMesh(const SoupMesh& soup);
 
 		private:
-			// Raw data, openGL renderable
-			std::vector<glm::vec3> positions;
-			std::vector<glm::vec3> normals;
-			std::vector<glm::vec2> texture_coordinates;
-			std::vector<unsigned int> indices;
-
 			// HalfEdge structure
 			std::vector<HalfEdge> half_edges;
 			std::vector<Face> faces;

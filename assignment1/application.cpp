@@ -71,7 +71,7 @@ namespace cg
 			glClearColor(input.get_cursor_position().x / 1000, input.get_cursor_position().y / 1000, input.get_cursor_position().y / 2000, 1.f);
 
 			glfwSwapBuffers(window.get());
-			input.reset();
+			input.unstick();
 			glfwPollEvents();
 		}
 	}
