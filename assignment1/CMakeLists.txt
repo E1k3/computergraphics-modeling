@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.0)
 project(assignments)
 
+# Make FindOpenGL use GLVND, if GLVND and LEGACY are available
+if(POLICY CMP0072)
+  cmake_policy(SET CMP0072 NEW)
+endif()
+
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(assimp REQUIRED)
 find_package(GLEW REQUIRED)
+# glm config module is broken on archlinux atm
 # find_package(glm REQUIRED)
 
 

@@ -49,7 +49,7 @@ namespace cg
 							&faces[fi],	// Counter-clockwise face is the current face
 							&vertices[face[next_i]]});	// Counter-clockwise vertex of the edge
 					// Set the companion edge that wasn't in the list before
-					half_edges.back().compantion_edge->companion_edge = &half_edges.back();
+					half_edges.back().companion_edge->companion_edge = &half_edges.back();
 
 					last = &half_edges.back();
 				}
