@@ -62,6 +62,20 @@ namespace cg
 			}
 		}
 
+		calculate_indices();
+	}
+
+	SoupMesh::SoupMesh(const std::vector<glm::vec3> positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texture_coordinates, const std::vector<std::vector<unsigned int>>& faces)
+		: positions{positions},
+		  normals{normals},
+		  texture_coordinates{texture_coordinates},
+		  faces{faces}
+	{
+		calculate_indices();
+	}
+
+	void SoupMesh::calculate_indices()
+	{
 		int num_ignored_primitives = 0;
 		for(const auto& face : faces)
 		{
@@ -89,7 +103,7 @@ namespace cg
 		
 		if(num_ignored_primitives > 0)
 		{
-			std::cout << "While loading " << file_path << " indices of " << num_ignored_primitives << " primitives were discarded" << '\n';
+			std::cout << "While calculating indices, indices of " << num_ignored_primitives << " primitives were discarded" << '\n';
 		}
 	}
 

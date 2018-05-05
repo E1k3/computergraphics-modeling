@@ -37,8 +37,10 @@ namespace cg
 				Vertex* next_vertex{nullptr};
 			};
 
-			explicit HalfEdgeMesh(const SoupMesh& soup);
+			static HalfEdgeMesh::HalfEdge* face_loop_next(HalfEdgeMesh::HalfEdge* current);
+			static HalfEdgeMesh::HalfEdge* vertex_loop_next(HalfEdgeMesh::HalfEdge* current);
 
+			explicit HalfEdgeMesh(const SoupMesh& soup);
 			explicit operator SoupMesh() const;
 
 		private:

@@ -1,6 +1,7 @@
 #include "application.hpp"
 
 #include "soup_mesh.hpp"
+#include "half_edge_mesh.hpp"
 #include "glutil.hpp"
 
 #include "glm/glm.hpp"
@@ -69,6 +70,8 @@ namespace cg
 
 		// Load mesh
 		auto mesh = SoupMesh{"assets/cube.obj"};
+		auto he_mesh = HalfEdgeMesh{mesh};
+		mesh = static_cast<SoupMesh>(he_mesh);
 		GLuint vao;
 		GLuint vbo[2];
 		glGenVertexArrays(1, &vao);
