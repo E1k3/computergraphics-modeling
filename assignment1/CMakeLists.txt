@@ -1,10 +1,6 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.11)
 project(assignments)
 
-# Make FindOpenGL use GLVND, if GLVND and LEGACY are available
-if(POLICY CMP0072)
-  cmake_policy(SET CMP0072 NEW)
-endif()
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
@@ -28,12 +24,12 @@ target_include_directories(assignment1
 	PUBLIC ${ASSIMP_INCLUDE_DIRS})
 
 target_link_libraries(assignment1
-	OpenGL::GL
+	OpenGL::OpenGL
 	GLEW::GLEW
 	glfw
 	assimp)
 
-target_compile_features(assignment1 PUBLIC cxx_std_14)
+target_compile_features(assignment1 PUBLIC cxx_std_17)
 
 target_compile_options(assignment1 PRIVATE -Wall)
 

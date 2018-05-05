@@ -28,11 +28,12 @@ namespace cg
 			if(face.size() > 2)
 			{
 				HalfEdge* last = nullptr;
+				HalfEdge* first = nullptr;
 				for(size_t i = 0; i < face.size(); ++i)
 				{
 					size_t next_i = (i+1) % face.size();
 
-					// Add left halfedge
+					// Add clockwise halfedge
 					half_edges.push_back(HalfEdge{
 							nullptr,	// Next halfedge is not yet known
 							nullptr,	// Companion halfedge is about to be added to the list
@@ -40,9 +41,17 @@ namespace cg
 							&vertices[face[i]]});	// Clockwise vertex of the edge
 					
 					// Set next_edge of last to the current halfedge
-					last->next_edge = &half_edges.back();
+					if(last)
+					{
+						last->next_edge = &half_edges.back();
+					}
+					else
+					{
+						first = &half_edges.back();
+					}
 
-					// Add right halfedge
+
+					// Add counter-clockwise halfedge
 					half_edges.push_back(HalfEdge{
 							nullptr,	// Next halfedge is about to be added to the list
 							&half_edges.back(), // Most recently added halfedge is companion
@@ -53,11 +62,26 @@ namespace cg
 
 					last = &half_edges.back();
 				}
-				//half_edges.back().next_edge = &;
-				// TODO: edges get added multiple times
-				// find better algorithm
+				last->next_edge = first;
 			}
 		}
+
+		// Merge duplicate HalfEdges
+		constexpr auto merge_duplicates = [] (const HalfEdge& a, const HalfEdge& b) { 
+			if(&a != &b && a.next_vertex == b.next_vertex && a.companion_edge->next_vertex == b.companion_edge->next_vertex)
+			{
+// TODO: find clean way to find dupes, merge them and then delete one of the two.
+			}
+		} -> bool;
+		// Merging info to duplicate before removal
+		// Might not be very clean, should probably change
+		half_edges.remove_if([&] (const HalfEdge& he)
+				{ 
+					if(auto it = std::find(half_edges.begin(), half_edges.end(), [&] (const auto& dup) { return equal_not_same(he, dup); }) != half_edges.end()) 
+					{
+						
+					}
+				});
 	}
 
 	HalfEdgeMesh::operator SoupMesh() const
