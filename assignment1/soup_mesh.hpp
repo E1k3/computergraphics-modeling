@@ -18,27 +18,21 @@ namespace cg
 			const std::vector<glm::vec3>& get_positions() const;
 			const std::vector<glm::vec3>& get_normals() const;
 			const std::vector<glm::vec2>& get_texture_coordinates() const;
-
 			const std::vector<std::vector<unsigned int>>& get_faces() const;
-			const std::vector<unsigned int>& get_indices() const;
 
 			std::vector<glm::vec3>& get_positions();
 			std::vector<glm::vec3>& get_normals();
 			std::vector<glm::vec2>& get_texture_coordinates();
-
 			std::vector<std::vector<unsigned int>>& get_faces();
-			std::vector<unsigned int>& get_indices();
+
+			std::vector<unsigned int> calculate_indices() const;
 
 		private:
-			void calculate_indices();
-
-
 			std::vector<glm::vec3> positions;
 			std::vector<glm::vec3> normals;
 			std::vector<glm::vec2> texture_coordinates;
 
 			std::vector<std::vector<unsigned int>> faces;
-			std::vector<unsigned int> indices;
 	};
 }
 

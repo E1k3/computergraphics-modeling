@@ -70,8 +70,7 @@ namespace cg
 
 		// Load mesh
 		auto mesh = SoupMesh{"assets/cube.obj"};
-		auto he_mesh = HalfEdgeMesh{mesh};
-		mesh = static_cast<SoupMesh>(he_mesh);
+		auto indices = mesh.calculate_indices();
 		GLuint vao;
 		GLuint vbo[2];
 		glGenVertexArrays(1, &vao);
@@ -81,7 +80,7 @@ namespace cg
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.get_positions().size(), mesh.get_positions().data(), GL_STATIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh.get_indices().size(), mesh.get_indices().data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -112,7 +111,7 @@ namespace cg
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// TODO:DO STUFF
-			glDrawElements(GL_TRIANGLES, mesh.get_indices().size(), GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 			
 			glfwSwapBuffers(window.get());
 			input.unstick();

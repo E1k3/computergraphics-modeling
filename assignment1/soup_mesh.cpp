@@ -30,27 +30,13 @@ namespace cg
 
 		// Load positions
 		if(mesh.HasPositions())
-		{
 			positions = std::vector<glm::vec3>{reinterpret_cast<glm::vec3*>(mesh.mVertices), reinterpret_cast<glm::vec3*>(mesh.mVertices) + mesh.mNumVertices};
-		}
-
-		// Load normals
-		if(mesh.HasNormals())
+		else
 		{
-			normals = std::vector<glm::vec3>{reinterpret_cast<glm::vec3*>(mesh.mNormals), reinterpret_cast<glm::vec3*>(mesh.mNormals) + mesh.mNumVertices};
+			std::cerr << "The first mesh in " << file_path << " does not have positions\n";
+			throw std::invalid_argument{"Soup mesh construction from file failed."};
 		}
-
-		// Load the first channel of texture coordinates
-		if(mesh.HasTextureCoords(0))
-		{
-			texture_coordinates.clear();
-			texture_coordinates.reserve(mesh.mNumVertices);
-			for(unsigned int i = 0; i < mesh.mNumVertices; ++i)
-			{
-				texture_coordinates.push_back(glm::vec2{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y});
-			}
-		}
-
+		
 		// Load faces
 		if(mesh.HasFaces())
 		{
@@ -61,8 +47,25 @@ namespace cg
 				faces.push_back(std::vector<unsigned int>{mesh.mFaces[fi].mIndices, mesh.mFaces[fi].mIndices + mesh.mFaces[fi].mNumIndices});
 			}
 		}
+		else
+		{
+			std::cerr << "The first mesh in " << file_path << " does not have faces\n";
+			throw std::invalid_argument{"Soup mesh construction from file failed."};
+		}
 
-		calculate_indices();
+		// Load normals
+		if(mesh.HasNormals())
+			normals = std::vector<glm::vec3>{reinterpret_cast<glm::vec3*>(mesh.mNormals), reinterpret_cast<glm::vec3*>(mesh.mNormals) + mesh.mNumVertices};
+
+		// Load the first channel of texture coordinates
+		if(mesh.HasTextureCoords(0))
+		{
+			texture_coordinates.clear();
+			texture_coordinates.reserve(mesh.mNumVertices);
+
+			for(unsigned int i = 0; i < mesh.mNumVertices; ++i)
+				texture_coordinates.push_back(glm::vec2{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y});
+		}
 	}
 
 	SoupMesh::SoupMesh(const std::vector<glm::vec3> positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texture_coordinates, const std::vector<std::vector<unsigned int>>& faces)
@@ -71,24 +74,39 @@ namespace cg
 		  texture_coordinates{texture_coordinates},
 		  faces{faces}
 	{
-		calculate_indices();
+		if(positions.empty() || faces.empty())
+		{
+			std::cerr << "Soup mesh construction missing positions or faces\n";
+			throw std::invalid_argument{"Soup mesh construction failed."};
+		}
+		else
+		{
+			if(!normals.empty() && positions.size() != normals.size())
+			{
+				std::cerr << "Soup mesh construction with differently sized position and normal collections\n";
+				throw std::invalid_argument{"Soup mesh construction failed."};
+			}
+			if(!texture_coordinates.empty() && positions.size() != texture_coordinates.size())
+			{
+				std::cerr << "Soup mesh construction with differently sized position and texture_coordinate collections\n";
+				throw std::invalid_argument{"Soup mesh construction failed."};
+			}
+		}
 	}
 
-	void SoupMesh::calculate_indices()
+	std::vector<unsigned int> SoupMesh::calculate_indices() const
 	{
+		auto indices = std::vector<unsigned int>{};
+
 		int num_ignored_primitives = 0;
 		for(const auto& face : faces)
 		{
 			// Ignore lines and points
 			if(face.size() < 3)
-			{
 				++num_ignored_primitives;
-			}
-			// Simply copy faces with 3 vertices
+			// Copy faces with 3 vertices
 			else if(face.size() == 3)
-			{
 				indices.insert(indices.begin(), face.begin(), face.end());
-			}
 			// Triangulate faces with more than 3 vertices
 			else if(face.size() > 3)
 			{
@@ -102,9 +120,9 @@ namespace cg
 		}
 		
 		if(num_ignored_primitives > 0)
-		{
 			std::cout << "While calculating indices, indices of " << num_ignored_primitives << " primitives were discarded" << '\n';
-		}
+		
+		return indices;
 	}
 
 	const std::vector<glm::vec3>& SoupMesh::get_positions() const
@@ -127,11 +145,6 @@ namespace cg
 		return faces;
 	}
 
-	const std::vector<unsigned int>& SoupMesh::get_indices() const
-	{
-		return indices;
-	}
-
 	std::vector<glm::vec3>& SoupMesh::get_positions()
 	{
 		return positions;
@@ -150,10 +163,5 @@ namespace cg
 	std::vector<std::vector<unsigned int>>& SoupMesh::get_faces()
 	{
 		return faces;
-	}
-
-	std::vector<unsigned int>& SoupMesh::get_indices()
-	{
-		return indices;
 	}
 }

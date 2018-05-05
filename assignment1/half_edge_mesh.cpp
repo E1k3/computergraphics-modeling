@@ -28,7 +28,7 @@ namespace cg
 		faces.resize(soup.get_faces().size());
 
 		// Create HalfEdges
-		for(size_t fi = 0; fi < faces.size(); ++fi)
+		for(size_t fi = 0; fi < soup.get_faces().size(); ++fi)
 		{
 			const auto& face = soup.get_faces()[fi];
 			// Ignore faces with less than 3 vertices
@@ -64,48 +64,40 @@ namespace cg
 		}
 
 		// Merge duplicate HalfEdges
-		half_edges.remove_if([this] (const HalfEdge& e)
+		const auto merge = [this] (const HalfEdge& current)
+		{
+			// Find different half edge connecting the same vertices
+			auto duplicate = std::find_if(half_edges.begin(), half_edges.end(), [&current] (const HalfEdge& other) { return &current != &other && current.next_vertex == other.next_vertex && current.companion_edge->next_vertex == other.companion_edge->next_vertex; });
+			// If duplicate is found
+			if(duplicate != half_edges.end())
 			{
-				auto it = std::find_if(half_edges.begin(), half_edges.end(), [&e] (const auto& other) { return &e != &other && e.next_vertex == other.next_vertex && e.companion_edge->next_vertex == other.companion_edge->next_vertex; });
-				if(it != half_edges.end())
+				// Merge face and next_edge into duplicate and mark this half_edge for deletion
+				if(!duplicate->face)
+					duplicate->face = current.face;
+
+				if(!duplicate->next_edge)
+					duplicate->next_edge = current.next_edge;
+
+				// Pointers to current should now point to duplicate
+				for(HalfEdge& h : half_edges)
 				{
-					if(!it->face)
-						it->face = e.face;
-					if(!it->next_edge)
-						it->next_edge = e.next_edge;
-					return true;
+					if(h.next_edge == &current)
+						h.next_edge = &(*duplicate);
+					if(h.companion_edge == &current)
+						h.companion_edge = &(*duplicate);
 				}
-				return false;
-			});
-
-	//	auto it = half_edges.begin();
-	//	while(it != half_edges.end())
-	//	{
-	//		auto dup_it = std::find_if(half_edges.begin(), half_edges.end(), [&it] (const HalfEdge& he) {
-	//					return &*it != &he && it->next_vertex == he.next_vertex && it->companion_edge->next_vertex == he.companion_edge->next_vertex;
-	//				});
-	//		if(dup_it != half_edges.end())
-	//		{
-	//			if(dup_it->next_edge)
-	//			{
-	//				// TODO remove debug message
-	//				if(it->next_edge && it->next_edge != dup_it->next_edge)
-	//					std::cout << "overwrite warning1\n";
-
-	//				it->next_edge = dup_it->next_edge;
-	//			}
-	//			if(dup_it->face)
-	//			{
-	//				// TODO remove debug message
-	//				if(it->face && it->face != dup_it->face)
-	//					std::cout << "overwrite warning2\n";
-
-	//				it->face = dup_it->face;
-	//			}
-	//			half_edges.erase(dup_it);
-	//		}
-	//		++it;
-	//	}
+				return true;
+			}
+			return false;
+		};
+		auto current = half_edges.begin();
+		while(current != half_edges.end())
+		{
+			if(merge(*current))
+				half_edges.erase(current++);
+			else
+				++current;
+		}
 
 		// Set reference edge for each vertex and each face
 		for(auto& he : half_edges)
@@ -132,11 +124,18 @@ namespace cg
 		{
 			soup_faces.push_back(std::vector<unsigned int>{});
 			HalfEdge* current = face.edge;
-			while(current->next_edge != face.edge)
-			{
-				soup_faces.back().emplace_back();
+
+			do {
+				auto index = static_cast<unsigned int>(std::distance<const Vertex*>(vertices.data(), current->next_vertex));
+				soup_faces.back().push_back(index);
 				current = face_loop_next(current);
-			}
+			} while(current != face.edge);
+		}
+		for(const auto& face : soup_faces)
+		{
+			for(const auto& index : face)
+				std::cout << index << ' ';
+			std::cout << "::\n";
 		}
 
 		return SoupMesh(soup_positions, soup_normals, soup_texture_coordinates, soup_faces);
@@ -146,13 +145,13 @@ namespace cg
 	{
 		if(current && current->next_edge)
 			return current->next_edge->companion_edge;
-		return nullptr;
+		throw std::invalid_argument("Faceloop next was given nullptr.");
 	}
 
 	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_next(HalfEdgeMesh::HalfEdge* current)
 	{
 		if(current)
 			return current->next_edge;
-		return nullptr;
+		throw std::invalid_argument("Vertexloop next was given nullptr.");
 	}
 }
