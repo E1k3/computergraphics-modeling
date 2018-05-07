@@ -46,7 +46,7 @@ namespace cg
 		glfwMakeContextCurrent(window.get());
 		glfwSwapInterval(0);	// Turn VSYNC off
 		
-		std::cout << "GLFW initialized successfully\n";
+		std::cout << "Application: GLFW initialized successfully\n";
 
 
 		// GLEW init
@@ -59,7 +59,7 @@ namespace cg
 			throw std::runtime_error{"GLEW failed to initialize."};
 		}
 
-		std::cout << "GLEW initialized successfully\n";
+		std::cout << "Application: GLEW initialized successfully\n";
 	}
 
 
@@ -69,13 +69,11 @@ namespace cg
 
 
 		// Load mesh
-		auto mesh = SoupMesh{"assets/alfa147.obj"};
-		std::cout << "soupmesh with " << mesh.get_positions().size() << " vertices\n";
+		auto mesh = SoupMesh{"assets/al.obj"};
 		auto hemesh = HalfEdgeMesh{mesh};
-		std::cout << "halfedgemesh\n";
 		mesh = static_cast<SoupMesh>(hemesh);
-		std::cout << "soupmesh with " << mesh.get_positions().size() << " vertices\n";
 		auto indices = mesh.calculate_indices();
+
 		GLuint vao;
 		GLuint vbo[2];
 		glGenVertexArrays(1, &vao);

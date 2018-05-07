@@ -9,15 +9,15 @@ namespace cg
 	{
 		if(soup.get_faces().empty() || soup.get_positions().empty())
 		{
-			std::cerr << "HalfEdge created from triangle soup that has no faces/vertices\n";
-			throw std::runtime_error{"HalfEdge created from empty triangle soup."};
+			std::cerr << "HalfEdgeMesh: Constructed from triangle soup that has no faces or no vertices\n";
+			throw std::runtime_error{"HalfEdgeMesh: Constructed from empty triangle soup."};
 		}
 
 		// Copy vertices
 		vertices.resize(std::max({soup.get_positions().size(), soup.get_normals().size(), soup.get_texture_coordinates().size()}));
 		for(size_t i = 0; i < vertices.size(); ++i)
 		{
-				vertices[i].position = soup.get_positions()[i];
+			vertices[i].position = soup.get_positions()[i];
 			if(!soup.get_normals().empty())
 				vertices[i].normal = soup.get_normals()[i];
 			if(!soup.get_texture_coordinates().empty())
@@ -34,74 +34,41 @@ namespace cg
 			// Ignore faces with less than 3 vertices
 			if(face.size() > 2)
 			{
-				HalfEdge* last = nullptr;
-				HalfEdge* first = nullptr;
+				EdgeKey last{nullptr, nullptr};
 				for(size_t i = 0; i < face.size(); ++i)
 				{
-					size_t next_i = (i+1) % face.size();
+					Vertex* cw_vertex = &vertices[face[i]];
+					Vertex* ccw_vertex = &vertices[face[(i+1) % face.size()]];
+					EdgeKey cw_edge_key = EdgeKey{cw_vertex, ccw_vertex};
+					EdgeKey ccw_edge_key = EdgeKey{ccw_vertex, cw_vertex};
 
-					// Add clockwise halfedge
-					half_edges.push_back(HalfEdge{nullptr, nullptr, nullptr, &vertices[face[i]]});
+					// Set clockwise halfedge refs
+					half_edges[cw_edge_key].next_vertex = cw_vertex;
+					half_edges[cw_edge_key].companion_edge = &half_edges[ccw_edge_key];
 					
 					// Set current edge as last.next_edge
-					if(last)
-						last->next_edge = &half_edges.back();
-					// Save first halfedge to close the loop
-					else
-						first = &half_edges.back();
+					if(last.first && last.second)
+						half_edges[last].next_edge = &half_edges[cw_edge_key];
 
-					// Add counter-clockwise halfedge
-					half_edges.push_back(HalfEdge{nullptr, &half_edges.back(), &faces[fi], &vertices[face[next_i]]});
+					// Set counter-clockwise halfedge refs
+					half_edges[ccw_edge_key].companion_edge = &half_edges[cw_edge_key];
+					half_edges[ccw_edge_key].face = &faces[fi];
+					half_edges[ccw_edge_key].next_vertex = ccw_vertex;
 
 					// Set the companion edge of clockwise halfedge
-					half_edges.back().companion_edge->companion_edge = &half_edges.back();
 
-					last = &half_edges.back();
+					last = ccw_edge_key;
 				}
 				// Close the loop
-				last->next_edge = first;
+				half_edges[last].next_edge = &half_edges[EdgeKey{&vertices[face[0]], &vertices[face[1]]}];
 			}
-		}
-
-		// Merge duplicate HalfEdges
-		const auto merge = [this] (const HalfEdge& current)
-		{
-			// Find different half edge connecting the same vertices
-			auto duplicate = std::find_if(half_edges.begin(), half_edges.end(), [&current] (const HalfEdge& other) { return &current != &other && current.next_vertex == other.next_vertex && current.companion_edge->next_vertex == other.companion_edge->next_vertex; });
-			// If duplicate is found
-			if(duplicate != half_edges.end())
-			{
-				// Merge face and next_edge into duplicate and mark this half_edge for deletion
-				if(!duplicate->face)
-					duplicate->face = current.face;
-
-				if(!duplicate->next_edge)
-					duplicate->next_edge = current.next_edge;
-
-				// Pointers to current should now point to duplicate
-				for(HalfEdge& h : half_edges)
-				{
-					if(h.next_edge == &current)
-						h.next_edge = &(*duplicate);
-					if(h.companion_edge == &current)
-						h.companion_edge = &(*duplicate);
-				}
-				return true;
-			}
-			return false;
-		};
-		auto current = half_edges.begin();
-		while(current != half_edges.end())
-		{
-			if(merge(*current))
-				half_edges.erase(current++);
-			else
-				++current;
 		}
 
 		// Set reference edge for each vertex and each face
-		for(auto& he : half_edges)
+		for(auto& p : half_edges)
 		{
+			auto& he = p.second;
+
 			if(!he.next_vertex->edge)
 				he.next_vertex->edge = &he;
 			if(he.face && !he.face->edge)
@@ -131,28 +98,21 @@ namespace cg
 				current = face_loop_next(current);
 			} while(current != face.edge);
 		}
-		for(const auto& face : soup_faces)
-		{
-			for(const auto& index : face)
-				std::cout << index << ' ';
-			std::cout << "\n";
-		}
-		std::cout << "num vertices" << vertices.size() << '\n';
 
 		return SoupMesh(soup_positions, soup_normals, soup_texture_coordinates, soup_faces);
 	}
 
 	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::face_loop_next(HalfEdgeMesh::HalfEdge* current)
 	{
-		if(current && current->next_edge)
+		if(current && current->next_edge && current->next_edge->companion_edge)
 			return current->next_edge->companion_edge;
-		throw std::invalid_argument("Faceloop next was given nullptr.");
+		throw std::invalid_argument("Faceloop reached nullptr.");
 	}
 
 	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_next(HalfEdgeMesh::HalfEdge* current)
 	{
-		if(current)
+		if(current && current->next_edge)
 			return current->next_edge;
-		throw std::invalid_argument("Vertexloop next was given nullptr.");
+		throw std::invalid_argument("Vertexloop reached nullptr.");
 	}
 }

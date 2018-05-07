@@ -47,11 +47,17 @@ namespace cg
 				faces.reserve(faces.size() + mesh.mNumFaces);
 				for(unsigned int fi = 0; fi < mesh.mNumFaces; ++fi)
 					faces.push_back(std::vector<unsigned int>{mesh.mFaces[fi].mIndices, mesh.mFaces[fi].mIndices + mesh.mFaces[fi].mNumIndices});
+
+				auto old_size = faces.size();
+				const auto is_degenerate = [] (std::vector<unsigned int> face) { std::sort(face.begin(), face.end()); return std::adjacent_find(face.begin(), face.end()) != face.end(); };
+				faces.erase(std::remove_if(faces.begin(), faces.end(), is_degenerate), faces.end());
+				if(old_size != faces.size())
+					std::cout << "SoupMesh: Removed " << old_size - faces.size() << " degenerate faces\n";
 			}
 			else
 			{
-				std::cerr << "The first mesh in " << file_path << " does not have faces\n";
-				throw std::invalid_argument{"Soup mesh construction from file failed."};
+				std::cerr << "Mesh" << mi << " in " << file_path << " does not have faces\n";
+				throw std::invalid_argument{"SoupMesh: Construction from file failed."};
 			}
 
 			// Load normals
@@ -123,7 +129,7 @@ namespace cg
 		}
 		
 		if(num_ignored_primitives > 0)
-			std::cout << "While calculating indices, indices of " << num_ignored_primitives << " primitives were discarded" << '\n';
+			std::cout << "SoupMesh: Indices of " << num_ignored_primitives << " primitives with less than 3 vertices were discarded" << '\n';
 		
 		return indices;
 	}

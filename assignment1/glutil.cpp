@@ -35,7 +35,7 @@ namespace cg
 			log.resize(static_cast<size_t>(logsize));
 			glGetShaderInfoLog(id, logsize, nullptr, log.data());
 
-			std::cout << "Compilation of shader [ ";
+			std::cout << "GLUtil: Compilation of shader [ ";
 			for(const auto& path : file_paths)
 				std::cout << path << ' ';
 			std::cout << "] failed with error: " << log.data() << '\n';

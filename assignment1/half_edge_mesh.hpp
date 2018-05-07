@@ -5,8 +5,9 @@
 
 #include "glm/glm.hpp"
 
+#include <functional>
 #include <vector>
-#include <list>
+#include <unordered_map>
 #include <string>
 
 namespace cg
@@ -44,8 +45,17 @@ namespace cg
 			explicit operator SoupMesh() const;
 
 		private:
+			using EdgeKey = std::pair<Vertex*, Vertex*>;
+			struct Hasher
+			{
+				size_t operator()(const EdgeKey& key) const
+				{
+					size_t first = std::hash<Vertex*>{}(key.first) << (sizeof(size_t) * 4);
+					return first ^ std::hash<Vertex*>{}(key.second); 
+				}
+			};
 			// HalfEdge structure
-			std::list<HalfEdge> half_edges;
+			std::unordered_map<EdgeKey, HalfEdge, Hasher> half_edges;
 			std::vector<Face> faces;
 			std::vector<Vertex> vertices;
 	};
