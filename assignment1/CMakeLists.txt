@@ -31,7 +31,7 @@ target_link_libraries(assignment1
 
 target_compile_features(assignment1 PUBLIC cxx_std_14)
 
-target_compile_options(assignment1 PRIVATE -Wall)
+target_compile_options(assignment1 PRIVATE -Wall -Wextra)
 
 add_custom_command(TARGET assignment1 POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
