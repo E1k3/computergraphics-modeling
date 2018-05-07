@@ -69,9 +69,12 @@ namespace cg
 
 
 		// Load mesh
-		auto mesh = SoupMesh{"assets/cube.obj"};
+		auto mesh = SoupMesh{"assets/alfa147.obj"};
+		std::cout << "soupmesh with " << mesh.get_positions().size() << " vertices\n";
 		auto hemesh = HalfEdgeMesh{mesh};
+		std::cout << "halfedgemesh\n";
 		mesh = static_cast<SoupMesh>(hemesh);
+		std::cout << "soupmesh with " << mesh.get_positions().size() << " vertices\n";
 		auto indices = mesh.calculate_indices();
 		GLuint vao;
 		GLuint vbo[2];
