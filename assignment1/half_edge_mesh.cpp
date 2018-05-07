@@ -135,8 +135,9 @@ namespace cg
 		{
 			for(const auto& index : face)
 				std::cout << index << ' ';
-			std::cout << "::\n";
+			std::cout << "\n";
 		}
+		std::cout << "num vertices" << vertices.size() << '\n';
 
 		return SoupMesh(soup_positions, soup_normals, soup_texture_coordinates, soup_faces);
 	}

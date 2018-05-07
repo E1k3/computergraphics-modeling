@@ -70,6 +70,8 @@ namespace cg
 
 		// Load mesh
 		auto mesh = SoupMesh{"assets/cube.obj"};
+		auto hemesh = HalfEdgeMesh{mesh};
+		mesh = static_cast<SoupMesh>(hemesh);
 		auto indices = mesh.calculate_indices();
 		GLuint vao;
 		GLuint vbo[2];
@@ -131,7 +133,7 @@ namespace cg
 		throw std::runtime_error{"GLFW encountered an error."};
 	}
 
-	void Application::framebuffer_callback(GLFWwindow* window, int width, int height)
+	void Application::framebuffer_callback(GLFWwindow* /*window*/, int width, int height)
 	{
 		glViewport(0, 0, width, height);
 	}

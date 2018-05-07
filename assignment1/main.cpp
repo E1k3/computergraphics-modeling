@@ -2,7 +2,7 @@
 
 #include "application.hpp"
 
-int main(int argc, char** argv)
+int main()
 {
 	auto app = cg::Application("Test");
 	app.execute();

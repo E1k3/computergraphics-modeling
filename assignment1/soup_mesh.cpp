@@ -19,52 +19,55 @@ namespace cg
 			std::cerr << "Assimp failed to read file " << file_path << " with message: " << importer.GetErrorString() << '\n';
 			throw std::runtime_error{"Assimp failed to load file."};
 		}
-		if(!scene->HasMeshes() || scene->mMeshes[0]->mNumVertices == 0)
+		if(!scene->HasMeshes())
 		{
 			std::cerr << "Model " << file_path << " does not contain a mesh\n";
 			throw std::runtime_error{"Model does not contain a mesh."};
 		}
 
-		// Load the first mesh
-		auto& mesh = *scene->mMeshes[0];
+		for(unsigned int mi = 0; mi < scene->mNumMeshes; ++mi)
+		{
+			auto& mesh = *scene->mMeshes[mi];
 
-		// Load positions
-		if(mesh.HasPositions())
-			positions = std::vector<glm::vec3>{reinterpret_cast<glm::vec3*>(mesh.mVertices), reinterpret_cast<glm::vec3*>(mesh.mVertices) + mesh.mNumVertices};
-		else
-		{
-			std::cerr << "The first mesh in " << file_path << " does not have positions\n";
-			throw std::invalid_argument{"Soup mesh construction from file failed."};
-		}
-		
-		// Load faces
-		if(mesh.HasFaces())
-		{
-			faces.clear();
-			faces.reserve(mesh.mNumFaces);
-			for(unsigned int fi = 0; fi < mesh.mNumFaces; ++fi)
+			// Load positions
+			if(mesh.HasPositions())
 			{
-				faces.push_back(std::vector<unsigned int>{mesh.mFaces[fi].mIndices, mesh.mFaces[fi].mIndices + mesh.mFaces[fi].mNumIndices});
+				positions.reserve(positions.size() + mesh.mNumVertices);
+				std::copy(reinterpret_cast<glm::vec3*>(mesh.mVertices), reinterpret_cast<glm::vec3*>(mesh.mVertices) + mesh.mNumVertices, std::back_inserter(positions));
 			}
-		}
-		else
-		{
-			std::cerr << "The first mesh in " << file_path << " does not have faces\n";
-			throw std::invalid_argument{"Soup mesh construction from file failed."};
-		}
+			else
+			{
+				std::cerr << "The first mesh in " << file_path << " does not have positions\n";
+				throw std::invalid_argument{"Soup mesh construction from file failed."};
+			}
+			
+			// Load faces
+			if(mesh.HasFaces())
+			{
+				faces.reserve(faces.size() + mesh.mNumFaces);
+				for(unsigned int fi = 0; fi < mesh.mNumFaces; ++fi)
+					faces.push_back(std::vector<unsigned int>{mesh.mFaces[fi].mIndices, mesh.mFaces[fi].mIndices + mesh.mFaces[fi].mNumIndices});
+			}
+			else
+			{
+				std::cerr << "The first mesh in " << file_path << " does not have faces\n";
+				throw std::invalid_argument{"Soup mesh construction from file failed."};
+			}
 
-		// Load normals
-		if(mesh.HasNormals())
-			normals = std::vector<glm::vec3>{reinterpret_cast<glm::vec3*>(mesh.mNormals), reinterpret_cast<glm::vec3*>(mesh.mNormals) + mesh.mNumVertices};
+			// Load normals
+			if(mesh.HasNormals())
+			{
+				normals.reserve(normals.size() + mesh.mNumVertices);
+				std::copy(reinterpret_cast<glm::vec3*>(mesh.mNormals), reinterpret_cast<glm::vec3*>(mesh.mNormals) + mesh.mNumVertices, std::back_inserter(normals));
+			}
 
-		// Load the first channel of texture coordinates
-		if(mesh.HasTextureCoords(0))
-		{
-			texture_coordinates.clear();
-			texture_coordinates.reserve(mesh.mNumVertices);
-
-			for(unsigned int i = 0; i < mesh.mNumVertices; ++i)
-				texture_coordinates.push_back(glm::vec2{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y});
+			// Load the first channel of texture coordinates
+			if(mesh.HasTextureCoords(0))
+			{
+				texture_coordinates.reserve(texture_coordinates.size() + mesh.mNumVertices);
+				for(unsigned int i = 0; i < mesh.mNumVertices; ++i)
+					texture_coordinates.push_back(glm::vec2{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y});
+			}
 		}
 	}
 
