@@ -29,7 +29,7 @@ target_link_libraries(assignment1
 	glfw
 	assimp)
 
-target_compile_features(assignment1 PUBLIC cxx_std_14)
+target_compile_features(assignment1 PUBLIC cxx_std_17)
 
 target_compile_options(assignment1 PRIVATE -Wall -Wextra)
 

@@ -29,6 +29,24 @@ namespace cg
 		{
 			auto& mesh = *scene->mMeshes[mi];
 
+			// Load faces
+			if(mesh.HasFaces())
+			{
+				faces.reserve(faces.size() + mesh.mNumFaces);
+				for(unsigned int fi = 0; fi < mesh.mNumFaces; ++fi)
+				{
+					faces.emplace_back(mesh.mFaces[fi].mIndices, mesh.mFaces[fi].mIndices + mesh.mFaces[fi].mNumIndices);
+					// Offset indices to start at the current meshs vertices
+					std::transform(faces.back().begin(), faces.back().end(), faces.back().begin(), [offset = positions.size()] (unsigned int& index) { return index + offset; });
+				}
+
+			}
+			else
+			{
+				std::cerr << "Mesh" << mi << " in " << file_path << " does not have faces\n";
+				throw std::invalid_argument{"SoupMesh: Construction from file failed."};
+			}
+
 			// Load positions
 			if(mesh.HasPositions())
 			{
@@ -37,29 +55,10 @@ namespace cg
 			}
 			else
 			{
-				std::cerr << "The first mesh in " << file_path << " does not have positions\n";
+				std::cerr << "Mesh " << mi << " in " << file_path << " does not have positions\n";
 				throw std::invalid_argument{"Soup mesh construction from file failed."};
 			}
 			
-			// Load faces
-			if(mesh.HasFaces())
-			{
-				faces.reserve(faces.size() + mesh.mNumFaces);
-				for(unsigned int fi = 0; fi < mesh.mNumFaces; ++fi)
-					faces.push_back(std::vector<unsigned int>{mesh.mFaces[fi].mIndices, mesh.mFaces[fi].mIndices + mesh.mFaces[fi].mNumIndices});
-
-				auto old_size = faces.size();
-				const auto is_degenerate = [] (std::vector<unsigned int> face) { std::sort(face.begin(), face.end()); return std::adjacent_find(face.begin(), face.end()) != face.end(); };
-				faces.erase(std::remove_if(faces.begin(), faces.end(), is_degenerate), faces.end());
-				if(old_size != faces.size())
-					std::cout << "SoupMesh: Removed " << old_size - faces.size() << " degenerate faces\n";
-			}
-			else
-			{
-				std::cerr << "Mesh" << mi << " in " << file_path << " does not have faces\n";
-				throw std::invalid_argument{"SoupMesh: Construction from file failed."};
-			}
-
 			// Load normals
 			if(mesh.HasNormals())
 			{
@@ -75,6 +74,14 @@ namespace cg
 					texture_coordinates.push_back(glm::vec2{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y});
 			}
 		}
+		// Remove degenerate faces
+		auto old_size = faces.size();
+		constexpr auto is_degenerate = [] (std::vector<unsigned int> face) { std::sort(face.begin(), face.end()); return std::adjacent_find(face.begin(), face.end()) != face.end(); };
+		faces.erase(std::remove_if(faces.begin(), faces.end(), is_degenerate), faces.end());
+		if(old_size != faces.size())
+			std::cout << "SoupMesh: Removed " << old_size - faces.size() << " degenerate faces\n";
+
+		std::cout << "SoupMesh: Successfully loaded " << scene->mNumMeshes << " meshes with " << positions.size() << " vertices total from \"" << file_path << "\"\n"; 
 	}
 
 	SoupMesh::SoupMesh(const std::vector<glm::vec3> positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texture_coordinates, const std::vector<std::vector<unsigned int>>& faces)

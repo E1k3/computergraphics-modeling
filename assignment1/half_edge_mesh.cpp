@@ -74,6 +74,8 @@ namespace cg
 			if(he.face && !he.face->edge)
 				he.face->edge = &he;
 		}
+
+		std::cout << "HalfEdgeMesh: Successfully converted SoupMesh into HalfEdgeMesh with " << half_edges.size() << " half edges\n"; 
 	}
 
 	HalfEdgeMesh::operator SoupMesh() const
@@ -98,6 +100,8 @@ namespace cg
 				current = face_loop_next(current);
 			} while(current != face.edge);
 		}
+
+		std::cout << "HalfEdgeMesh: Successfully converted HalfEdgeMesh to SoupMesh with " << soup_positions.size() << " vertices\n";
 
 		return SoupMesh(soup_positions, soup_normals, soup_texture_coordinates, soup_faces);
 	}
