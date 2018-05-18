@@ -1,5 +1,5 @@
-#ifndef SOUP_MESH_HPP
-#define SOUP_MESH_HPP
+#ifndef REGULAR_MESH_HPP
+#define REGULAR_MESH_HPP
 
 #include "glm/glm.hpp"
 
@@ -8,32 +8,34 @@
 
 namespace cg
 {
-	class SoupMesh
+	class RegularMesh
 	{
 		public:
-			explicit SoupMesh() = delete;
-			explicit SoupMesh(const std::string& file_path);
-			explicit SoupMesh(const std::vector<glm::vec3> positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texture_coordinates, const std::vector<std::vector<unsigned int>>& faces);
+			RegularMesh() = delete;
+			explicit RegularMesh(size_t width, size_t height, const std::vector<glm::vec3> positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texture_coordinates);
+
+			size_t get_width() const;
+			size_t get_height() const;
 
 			const std::vector<glm::vec3>& get_positions() const;
 			const std::vector<glm::vec3>& get_normals() const;
 			const std::vector<glm::vec2>& get_texture_coordinates() const;
-			const std::vector<std::vector<unsigned int>>& get_faces() const;
 
 			std::vector<glm::vec3>& get_positions();
 			std::vector<glm::vec3>& get_normals();
 			std::vector<glm::vec2>& get_texture_coordinates();
-			std::vector<std::vector<unsigned int>>& get_faces();
 
 			std::vector<unsigned int> calculate_indices() const;
+			
+			void loop_subdivision();
 
 		private:
+			size_t width{0};
+			size_t height{0};
 			std::vector<glm::vec3> positions;
 			std::vector<glm::vec3> normals;
 			std::vector<glm::vec2> texture_coordinates;
-
-			std::vector<std::vector<unsigned int>> faces;
 	};
 }
 
-#endif // SOUP_MESH_HPP
+#endif // REGULAR_MESH_HPP

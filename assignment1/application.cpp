@@ -2,6 +2,7 @@
 
 #include "soup_mesh.hpp"
 #include "half_edge_mesh.hpp"
+#include "regular_mesh.hpp"
 #include "glutil.hpp"
 
 #include "glm/glm.hpp"
@@ -69,9 +70,17 @@ namespace cg
 
 
 		// Load mesh
-		auto mesh = SoupMesh{"assets/al.obj"};
-		auto hemesh = HalfEdgeMesh{mesh};
-		mesh = static_cast<SoupMesh>(hemesh);
+		//auto mesh = SoupMesh{"assets/al.obj"};
+		//auto hemesh = HalfEdgeMesh{mesh};
+		//mesh = static_cast<SoupMesh>(hemesh);
+		//auto indices = mesh.calculate_indices();
+		auto positions = std::vector<glm::vec3>(5*5);
+		auto xys = std::array<float, 5>{-2.f, -1.f, 0.f, 1.f, 2.f};
+		auto zs = std::array<float, 5>{1.f, 2.f, 5.f, 1.f, 3.f};
+		for(size_t row = 0; row < 5; ++row)
+			for(size_t col = 0; col < 5; ++col)
+				positions[row * 5 + col] = glm::vec3{xys[row], xys[col], zs[row]};
+		auto mesh = RegularMesh(5, 5, positions, {}, {});
 		auto indices = mesh.calculate_indices();
 
 		GLuint vao;

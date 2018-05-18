@@ -64,6 +64,7 @@ namespace cg
 			{
 				normals.reserve(normals.size() + mesh.mNumVertices);
 				std::copy(reinterpret_cast<glm::vec3*>(mesh.mNormals), reinterpret_cast<glm::vec3*>(mesh.mNormals) + mesh.mNumVertices, std::back_inserter(normals));
+				normals.resize(positions.size());
 			}
 
 			// Load the first channel of texture coordinates
@@ -72,8 +73,10 @@ namespace cg
 				texture_coordinates.reserve(texture_coordinates.size() + mesh.mNumVertices);
 				for(unsigned int i = 0; i < mesh.mNumVertices; ++i)
 					texture_coordinates.push_back(glm::vec2{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y});
+				texture_coordinates.resize(positions.size());
 			}
 		}
+
 		// Remove degenerate faces
 		auto old_size = faces.size();
 		constexpr auto is_degenerate = [] (std::vector<unsigned int> face) { std::sort(face.begin(), face.end()); return std::adjacent_find(face.begin(), face.end()) != face.end(); };

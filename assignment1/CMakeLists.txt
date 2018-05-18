@@ -16,6 +16,7 @@ add_executable(assignment1
 	inputmanager.cpp
 	soup_mesh.cpp
 	half_edge_mesh.cpp
+	regular_mesh.cpp
 	glutil.cpp)
 
 target_include_directories(assignment1

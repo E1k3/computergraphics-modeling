@@ -41,6 +41,7 @@ namespace cg
 			static HalfEdgeMesh::HalfEdge* face_loop_next(HalfEdgeMesh::HalfEdge* current);
 			static HalfEdgeMesh::HalfEdge* vertex_loop_next(HalfEdgeMesh::HalfEdge* current);
 
+			explicit HalfEdgeMesh() = delete;
 			explicit HalfEdgeMesh(const SoupMesh& soup);
 			explicit operator SoupMesh() const;
 
