@@ -28,6 +28,8 @@ namespace cg
 			std::vector<unsigned int> calculate_indices() const;
 			
 			void loop_subdivision();
+			void catmull_clark_subdivision();
+			void catmull_clark_subdivision_sharp_bounds();
 
 		private:
 			size_t width{0};
