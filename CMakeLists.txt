@@ -10,7 +10,7 @@ find_package(GLEW REQUIRED)
 # find_package(glm REQUIRED)
 
 
-add_executable(assignment1
+add_executable(assignment
 	main.cpp
 	application.cpp
 	inputmanager.cpp
@@ -19,27 +19,27 @@ add_executable(assignment1
 	regular_mesh.cpp
 	glutil.cpp)
 
-target_include_directories(assignment1
+target_include_directories(assignment
 	PUBLIC ${OPENGL_INCLUDE_DIR}
 	PUBLIC ${GLEW_INCLUDE_DIRS}
 	PUBLIC ${ASSIMP_INCLUDE_DIRS})
 
-target_link_libraries(assignment1
+target_link_libraries(assignment
 	OpenGL::OpenGL
 	GLEW::GLEW
 	glfw
 	assimp)
 
-target_compile_features(assignment1 PUBLIC cxx_std_17)
+target_compile_features(assignment PUBLIC cxx_std_17)
 
-target_compile_options(assignment1 PRIVATE -Wall -Wextra)
+target_compile_options(assignment PRIVATE -Wall -Wextra)
 
-add_custom_command(TARGET assignment1 POST_BUILD 
+add_custom_command(TARGET assignment POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_SOURCE_DIR}/shaders/
 	${CMAKE_CURRENT_BINARY_DIR}/shaders/)
 
-add_custom_command(TARGET assignment1 POST_BUILD 
+add_custom_command(TARGET assignment POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_SOURCE_DIR}/assets/
 	${CMAKE_CURRENT_BINARY_DIR}/assets/)
