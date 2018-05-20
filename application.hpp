@@ -20,20 +20,15 @@ namespace cg
 		public:
 			explicit Application(std::string title, int window_width = 640, int window_height = 480);
 
-			void execute();
+			GLFWwindow* get_window() const;
+			void set_input(InputManager* input);
 
 
 		private:
 			[[noreturn]] static void error_callback(int errorcode, const char* description);
 			static void framebuffer_callback(GLFWwindow* window, int width, int height);
-			void setup_input();
 
 			WindowPointer window;
-			InputManager input;
-			
-			std::string title;
-			int width;
-			int height;
 	};
 }
 

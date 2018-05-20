@@ -9,9 +9,9 @@ find_package(GLEW REQUIRED)
 # glm config module is broken on archlinux atm
 # find_package(glm REQUIRED)
 
-
-add_executable(assignment
-	main.cpp
+# Assignment 1
+add_executable(assignment1
+	assignment1.cpp
 	application.cpp
 	inputmanager.cpp
 	soup_mesh.cpp
@@ -19,27 +19,57 @@ add_executable(assignment
 	regular_mesh.cpp
 	glutil.cpp)
 
-target_include_directories(assignment
+target_include_directories(assignment1
 	PUBLIC ${OPENGL_INCLUDE_DIR}
 	PUBLIC ${GLEW_INCLUDE_DIRS}
 	PUBLIC ${ASSIMP_INCLUDE_DIRS})
 
-target_link_libraries(assignment
+target_link_libraries(assignment1
 	OpenGL::OpenGL
 	GLEW::GLEW
 	glfw
 	assimp)
 
-target_compile_features(assignment PUBLIC cxx_std_17)
+target_compile_features(assignment1 PUBLIC cxx_std_17)
 
-target_compile_options(assignment PRIVATE -Wall -Wextra)
+target_compile_options(assignment1 PRIVATE -Wall -Wextra)
 
-add_custom_command(TARGET assignment POST_BUILD 
+# Assignment 1
+add_executable(assignment2
+	assignment2.cpp
+	application.cpp
+	inputmanager.cpp
+	soup_mesh.cpp
+	half_edge_mesh.cpp
+	regular_mesh.cpp
+	glutil.cpp)
+
+target_include_directories(assignment2
+	PUBLIC ${OPENGL_INCLUDE_DIR}
+	PUBLIC ${GLEW_INCLUDE_DIRS}
+	PUBLIC ${ASSIMP_INCLUDE_DIRS})
+
+target_link_libraries(assignment2
+	OpenGL::OpenGL
+	GLEW::GLEW
+	glfw
+	assimp)
+
+target_compile_features(assignment2 PUBLIC cxx_std_17)
+
+target_compile_options(assignment2 PRIVATE -Wall -Wextra)
+
+# Assets and shaders
+add_custom_target(assignments)
+add_dependencies(assignment1 assignments)
+add_dependencies(assignment2 assignments)
+
+add_custom_command(TARGET assignments POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_SOURCE_DIR}/shaders/
 	${CMAKE_CURRENT_BINARY_DIR}/shaders/)
 
-add_custom_command(TARGET assignment POST_BUILD 
+add_custom_command(TARGET assignments POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${CMAKE_SOURCE_DIR}/assets/
 	${CMAKE_CURRENT_BINARY_DIR}/assets/)
