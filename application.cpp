@@ -35,7 +35,7 @@ namespace cg
 		
 		glfwSetFramebufferSizeCallback(window.get(), framebuffer_callback);
 		glfwMakeContextCurrent(window.get());
-		glfwSwapInterval(0);	// Turn VSYNC off
+		glfwSwapInterval(1);	// Turn VSYNC off
 		
 		std::cout << "Application: GLFW initialized successfully\n";
 

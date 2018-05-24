@@ -25,56 +25,61 @@ namespace cg
 			throw std::runtime_error{"Model does not contain a mesh."};
 		}
 
+		// Reserve space for meshes and check if all have faces and positions
+		unsigned int num_faces = 0;
+		unsigned int num_vertices = 0;
 		for(unsigned int mi = 0; mi < scene->mNumMeshes; ++mi)
 		{
-			auto& mesh = *scene->mMeshes[mi];
-
-			// Load faces
-			if(mesh.HasFaces())
-			{
-				faces.reserve(faces.size() + mesh.mNumFaces);
-				for(unsigned int fi = 0; fi < mesh.mNumFaces; ++fi)
-				{
-					faces.emplace_back(mesh.mFaces[fi].mIndices, mesh.mFaces[fi].mIndices + mesh.mFaces[fi].mNumIndices);
-					// Offset indices to start at the current meshs vertices
-					std::transform(faces.back().begin(), faces.back().end(), faces.back().begin(), [offset = positions.size()] (unsigned int& index) { return index + offset; });
-				}
-
-			}
+			if(scene->mMeshes[mi]->HasFaces())
+				num_faces += scene->mMeshes[mi]->mNumFaces;
 			else
 			{
 				std::cerr << "Mesh" << mi << " in " << file_path << " does not have faces\n";
 				throw std::invalid_argument{"SoupMesh: Construction from file failed."};
 			}
 
-			// Load positions
-			if(mesh.HasPositions())
-			{
-				positions.reserve(positions.size() + mesh.mNumVertices);
-				std::copy(reinterpret_cast<glm::vec3*>(mesh.mVertices), reinterpret_cast<glm::vec3*>(mesh.mVertices) + mesh.mNumVertices, std::back_inserter(positions));
-			}
+			if(scene->mMeshes[mi]->HasPositions())
+				num_faces += scene->mMeshes[mi]->mNumVertices;
 			else
 			{
 				std::cerr << "Mesh " << mi << " in " << file_path << " does not have positions\n";
 				throw std::invalid_argument{"Soup mesh construction from file failed."};
 			}
-			
-			// Load normals
-			if(mesh.HasNormals())
+		}
+		faces.reserve(num_faces);
+		positions.reserve(num_vertices);
+		normals.reserve(num_vertices);
+		texture_coordinates.reserve(num_vertices);
+
+		for(unsigned int mi = 0; mi < scene->mNumMeshes; ++mi)
+		{
+			auto& mesh = *scene->mMeshes[mi];
+
+			// Copy faces
+			for(unsigned int fi = 0; fi < mesh.mNumFaces; ++fi)
 			{
-				normals.reserve(normals.size() + mesh.mNumVertices);
-				std::copy(reinterpret_cast<glm::vec3*>(mesh.mNormals), reinterpret_cast<glm::vec3*>(mesh.mNormals) + mesh.mNumVertices, std::back_inserter(normals));
-				normals.resize(positions.size());
+				faces.emplace_back(mesh.mFaces[fi].mIndices, mesh.mFaces[fi].mIndices + mesh.mFaces[fi].mNumIndices);
+				// Offset indices to start at the current meshs vertices
+				std::transform(faces.back().begin(), faces.back().end(), faces.back().begin(), [offset = positions.size()] (unsigned int& index) { return index + offset; });
 			}
 
-			// Load the first channel of texture coordinates
+			// Copy positions
+			std::copy(reinterpret_cast<glm::vec3*>(mesh.mVertices), reinterpret_cast<glm::vec3*>(mesh.mVertices) + mesh.mNumVertices, std::back_inserter(positions));
+			
+			// Copy normals
+			if(mesh.HasNormals())
+				std::copy(reinterpret_cast<glm::vec3*>(mesh.mNormals), reinterpret_cast<glm::vec3*>(mesh.mNormals) + mesh.mNumVertices, std::back_inserter(normals));
+			// If the current mesh does not have any, fill with zeros
+			else
+				normals.resize(positions.size());
+
+			// Copy the first channel of texture coordinates
 			if(mesh.HasTextureCoords(0))
-			{
-				texture_coordinates.reserve(texture_coordinates.size() + mesh.mNumVertices);
-				for(unsigned int i = 0; i < mesh.mNumVertices; ++i)
-					texture_coordinates.push_back(glm::vec2{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y});
+				for(unsigned int ti = 0; ti < mesh.mNumVertices; ++ti)
+					texture_coordinates.emplace_back(mesh.mTextureCoords[0][ti].x, mesh.mTextureCoords[0][ti].y);
+			// If the current mesh does not have any, fill with zeros
+			else
 				texture_coordinates.resize(positions.size());
-			}
 		}
 
 		// Remove degenerate faces
@@ -84,7 +89,7 @@ namespace cg
 		if(old_size != faces.size())
 			std::cout << "SoupMesh: Removed " << old_size - faces.size() << " degenerate faces\n";
 
-		std::cout << "SoupMesh: Successfully loaded " << scene->mNumMeshes << " meshes with " << positions.size() << " vertices total from \"" << file_path << "\"\n"; 
+		std::cout << "SoupMesh: Successfully loaded and merged " << scene->mNumMeshes << " meshes with " << positions.size() << " vertices total from \"" << file_path << "\"\n"; 
 	}
 
 	SoupMesh::SoupMesh(const std::vector<glm::vec3> positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texture_coordinates, const std::vector<std::vector<unsigned int>>& faces)

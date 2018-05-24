@@ -24,7 +24,7 @@ int main(int /*argc*/, char** /*argv*/)
 	auto window = app.get_window();
 
 	// Load mesh
-	auto mesh = SoupMesh{"assets/al.obj"};
+	auto mesh = SoupMesh{"assets/alfa147.obj"};
 	// Convert to half edge mesh
 	auto hemesh = HalfEdgeMesh{mesh};
 	// Convert back to renderable triangle soup
