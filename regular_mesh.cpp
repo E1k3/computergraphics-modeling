@@ -259,6 +259,16 @@ namespace cg
 							+ positions[row * width + col + 1]
 							+ positions[(row + 1) * width + col]
 							+ positions[(row + 1) * width + col + 1]) / 4.f;
+
+					new_normals[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)] = (normals[row * width + col]
+							+ normals[row * width + col + 1]
+							+ normals[(row + 1) * width + col]
+							+ normals[(row + 1) * width + col + 1]) / 4.f;
+
+					new_texture_coordinates[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)] = (texture_coordinates[row * width + col]
+							+ texture_coordinates[row * width + col + 1]
+							+ texture_coordinates[(row + 1) * width + col]
+							+ texture_coordinates[(row + 1) * width + col + 1]) / 4.f;
 				}
 			}
 		}
@@ -274,11 +284,31 @@ namespace cg
 						+ new_positions[get_index(row * 2 - 1, col * 2 + 1, new_width, new_height)]
 						+ new_positions[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)]) / 4.f;
 
+				new_normals[get_index(row * 2, col * 2 + 1, new_width, new_height)] = (normals[get_index(row, col, width, height)]
+						+ normals[get_index(row, col + 1, width, height)]
+						+ new_normals[get_index(row * 2 - 1, col * 2 + 1, new_width, new_height)]
+						+ new_normals[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)]) / 4.f;
+
+				new_texture_coordinates[get_index(row * 2, col * 2 + 1, new_width, new_height)] = (texture_coordinates[get_index(row, col, width, height)]
+						+ texture_coordinates[get_index(row, col + 1, width, height)]
+						+ new_texture_coordinates[get_index(row * 2 - 1, col * 2 + 1, new_width, new_height)]
+						+ new_texture_coordinates[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)]) / 4.f;
+
 				// Down edge
 				new_positions[get_index(row * 2 + 1, col * 2, new_width, new_height)] = (positions[get_index(row, col, width, height)]
 						+ positions[get_index(row + 1, col, width, height)]
 						+ new_positions[get_index(row * 2 + 1, col * 2 - 1, new_width, new_height)]
 						+ new_positions[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)]) / 4.f;
+
+				new_normals[get_index(row * 2 + 1, col * 2, new_width, new_height)] = (normals[get_index(row, col, width, height)]
+						+ normals[get_index(row + 1, col, width, height)]
+						+ new_normals[get_index(row * 2 + 1, col * 2 - 1, new_width, new_height)]
+						+ new_normals[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)]) / 4.f;
+
+				new_texture_coordinates[get_index(row * 2 + 1, col * 2, new_width, new_height)] = (texture_coordinates[get_index(row, col, width, height)]
+						+ texture_coordinates[get_index(row + 1, col, width, height)]
+						+ new_texture_coordinates[get_index(row * 2 + 1, col * 2 - 1, new_width, new_height)]
+						+ new_texture_coordinates[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)]) / 4.f;
 			}
 		}
 
@@ -297,6 +327,26 @@ namespace cg
 						+ new_positions[get_index(row * 2 - 1, col * 2 + 1, new_width, new_height)]
 						+ new_positions[get_index(row * 2 + 1, col * 2 - 1, new_width, new_height)]
 						+ new_positions[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)]) / 16.f;
+
+				new_normals[get_index(row * 2, col * 2, new_width, new_height)] = (normals[get_index(row, col, width, height)] * 8.f
+						+ new_normals[get_index(row * 2, col * 2 - 1, new_width, new_height)]
+						+ new_normals[get_index(row * 2, col * 2 + 1, new_width, new_height)]
+						+ new_normals[get_index(row * 2 - 1, col * 2, new_width, new_height)]
+						+ new_normals[get_index(row * 2 + 1, col * 2, new_width, new_height)]
+						+ new_normals[get_index(row * 2 - 1, col * 2 - 1, new_width, new_height)]
+						+ new_normals[get_index(row * 2 - 1, col * 2 + 1, new_width, new_height)]
+						+ new_normals[get_index(row * 2 + 1, col * 2 - 1, new_width, new_height)]
+						+ new_normals[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)]) / 16.f;
+
+				new_texture_coordinates[get_index(row * 2, col * 2, new_width, new_height)] = (texture_coordinates[get_index(row, col, width, height)] * 8.f
+						+ new_texture_coordinates[get_index(row * 2, col * 2 - 1, new_width, new_height)]
+						+ new_texture_coordinates[get_index(row * 2, col * 2 + 1, new_width, new_height)]
+						+ new_texture_coordinates[get_index(row * 2 - 1, col * 2, new_width, new_height)]
+						+ new_texture_coordinates[get_index(row * 2 + 1, col * 2, new_width, new_height)]
+						+ new_texture_coordinates[get_index(row * 2 - 1, col * 2 - 1, new_width, new_height)]
+						+ new_texture_coordinates[get_index(row * 2 - 1, col * 2 + 1, new_width, new_height)]
+						+ new_texture_coordinates[get_index(row * 2 + 1, col * 2 - 1, new_width, new_height)]
+						+ new_texture_coordinates[get_index(row * 2 + 1, col * 2 + 1, new_width, new_height)]) / 16.f;
 			}
 		}
 
@@ -330,6 +380,16 @@ namespace cg
 							+ positions[row * width + col + 1]
 							+ positions[(row + 1) * width + col]
 							+ positions[(row + 1) * width + col + 1]) / 4.f;
+
+					new_normals[(row * 2 + 1) * new_width + col * 2 + 1] = (normals[row * width + col]
+							+ normals[row * width + col + 1]
+							+ normals[(row + 1) * width + col]
+							+ normals[(row + 1) * width + col + 1]) / 4.f;
+
+					new_texture_coordinates[(row * 2 + 1) * new_width + col * 2 + 1] = (texture_coordinates[row * width + col]
+							+ texture_coordinates[row * width + col + 1]
+							+ texture_coordinates[(row + 1) * width + col]
+							+ texture_coordinates[(row + 1) * width + col + 1]) / 4.f;
 				}
 			}
 		}
@@ -345,6 +405,12 @@ namespace cg
 				{
 					new_positions[row * 2 * new_width + col * 2 + 1] = (positions[row * width + col]
 							+ positions[row * width + col + 1]) / 2.f;
+
+					new_normals[row * 2 * new_width + col * 2 + 1] = (normals[row * width + col]
+							+ normals[row * width + col + 1]) / 2.f;
+
+					new_texture_coordinates[row * 2 * new_width + col * 2 + 1] = (texture_coordinates[row * width + col]
+							+ texture_coordinates[row * width + col + 1]) / 2.f;
 				}
 				// Inside
 				else if(col + 1 < width)
@@ -353,6 +419,16 @@ namespace cg
 							+ positions[row * width + col + 1]
 							+ new_positions[(row * 2 - 1) * new_width + col * 2 + 1]
 							+ new_positions[(row * 2 + 1) * new_width + col * 2 + 1]) / 4.f;
+
+					new_normals[row * 2 * new_width + col * 2 + 1] = (normals[row * width + col]
+							+ normals[row * width + col + 1]
+							+ new_normals[(row * 2 - 1) * new_width + col * 2 + 1]
+							+ new_normals[(row * 2 + 1) * new_width + col * 2 + 1]) / 4.f;
+
+					new_texture_coordinates[row * 2 * new_width + col * 2 + 1] = (texture_coordinates[row * width + col]
+							+ texture_coordinates[row * width + col + 1]
+							+ new_texture_coordinates[(row * 2 - 1) * new_width + col * 2 + 1]
+							+ new_texture_coordinates[(row * 2 + 1) * new_width + col * 2 + 1]) / 4.f;
 				}
 
 				// Down edge
@@ -361,6 +437,12 @@ namespace cg
 				{
 					new_positions[(row * 2 + 1) * new_width + col * 2] = (positions[row * width + col]
 							+ positions[(row + 1) * width + col]) / 2.f;
+
+					new_normals[(row * 2 + 1) * new_width + col * 2] = (normals[row * width + col]
+							+ normals[(row + 1) * width + col]) / 2.f;
+
+					new_texture_coordinates[(row * 2 + 1) * new_width + col * 2] = (texture_coordinates[row * width + col]
+							+ texture_coordinates[(row + 1) * width + col]) / 2.f;
 				}
 				// Inside
 				else if(row + 1 < height)
@@ -369,6 +451,16 @@ namespace cg
 							+ positions[(row + 1) * width + col]
 							+ new_positions[(row * 2 + 1) * new_width + col * 2 - 1]
 							+ new_positions[(row * 2 + 1) * new_width + col * 2 + 1]) / 4.f;
+
+					new_normals[(row * 2 + 1) * new_width + col * 2] = (normals[row * width + col]
+							+ normals[(row + 1) * width + col]
+							+ new_normals[(row * 2 + 1) * new_width + col * 2 - 1]
+							+ new_normals[(row * 2 + 1) * new_width + col * 2 + 1]) / 4.f;
+
+					new_texture_coordinates[(row * 2 + 1) * new_width + col * 2] = (texture_coordinates[row * width + col]
+							+ texture_coordinates[(row + 1) * width + col]
+							+ new_texture_coordinates[(row * 2 + 1) * new_width + col * 2 - 1]
+							+ new_texture_coordinates[(row * 2 + 1) * new_width + col * 2 + 1]) / 4.f;
 				}
 			}
 		}
@@ -384,6 +476,14 @@ namespace cg
 					new_positions[row * 2 * new_width + col * 2] = (positions[row * width + col] * 6.f
 							+ new_positions[row * 2 * new_width + col * 2 - 1]
 							+ new_positions[row * 2 * new_width + col * 2 + 1]) / 8.f;
+
+					new_normals[row * 2 * new_width + col * 2] = (normals[row * width + col] * 6.f
+							+ new_normals[row * 2 * new_width + col * 2 - 1]
+							+ new_normals[row * 2 * new_width + col * 2 + 1]) / 8.f;
+
+					new_texture_coordinates[row * 2 * new_width + col * 2] = (texture_coordinates[row * width + col] * 6.f
+							+ new_texture_coordinates[row * 2 * new_width + col * 2 - 1]
+							+ new_texture_coordinates[row * 2 * new_width + col * 2 + 1]) / 8.f;
 				}
 				// Vertical boundary vertex
 				else if((col == 0 || col + 1 == width) && row > 0 && row + 1 < height)
@@ -391,11 +491,23 @@ namespace cg
 					new_positions[row * 2 * new_width + col * 2] = (positions[row * width + col] * 6.f
 							+ new_positions[(row * 2 - 1) * new_width + col * 2]
 							+ new_positions[(row * 2 + 1) * new_width + col * 2]) / 8.f;
+
+					new_normals[row * 2 * new_width + col * 2] = (normals[row * width + col] * 6.f
+							+ new_normals[(row * 2 - 1) * new_width + col * 2]
+							+ new_normals[(row * 2 + 1) * new_width + col * 2]) / 8.f;
+
+					new_texture_coordinates[row * 2 * new_width + col * 2] = (texture_coordinates[row * width + col] * 6.f
+							+ new_texture_coordinates[(row * 2 - 1) * new_width + col * 2]
+							+ new_texture_coordinates[(row * 2 + 1) * new_width + col * 2]) / 8.f;
 				}
 				// Corner vertex
 				else if(row == 0 || row + 1 == height || col == 0 || col + 1 == width)
 				{
 					new_positions[row * 2 * new_width + col * 2] = positions[row * width + col];
+
+					new_normals[row * 2 * new_width + col * 2] = normals[row * width + col];
+
+					new_texture_coordinates[row * 2 * new_width + col * 2] = texture_coordinates[row * width + col];
 				}
 				// Regular inside vertex
 				else
@@ -409,6 +521,26 @@ namespace cg
 							+ new_positions[(row * 2 - 1) * new_width + col * 2 + 1]
 							+ new_positions[(row * 2 + 1) * new_width + col * 2 - 1]
 							+ new_positions[(row * 2 + 1) * new_width + col * 2 + 1]) / 16.f;
+
+					new_normals[row * 2 * new_width + col * 2] = (normals[row * width + col] * 8.f
+							+ new_normals[row * 2 * new_width + col * 2 - 1]
+							+ new_normals[row * 2 * new_width + col * 2 + 1]
+							+ new_normals[(row * 2 - 1) * new_width + col * 2]
+							+ new_normals[(row * 2 + 1)* new_width + col * 2]
+							+ new_normals[(row * 2 - 1) * new_width + col * 2 - 1]
+							+ new_normals[(row * 2 - 1) * new_width + col * 2 + 1]
+							+ new_normals[(row * 2 + 1) * new_width + col * 2 - 1]
+							+ new_normals[(row * 2 + 1) * new_width + col * 2 + 1]) / 16.f;
+
+					new_texture_coordinates[row * 2 * new_width + col * 2] = (texture_coordinates[row * width + col] * 8.f
+							+ new_texture_coordinates[row * 2 * new_width + col * 2 - 1]
+							+ new_texture_coordinates[row * 2 * new_width + col * 2 + 1]
+							+ new_texture_coordinates[(row * 2 - 1) * new_width + col * 2]
+							+ new_texture_coordinates[(row * 2 + 1)* new_width + col * 2]
+							+ new_texture_coordinates[(row * 2 - 1) * new_width + col * 2 - 1]
+							+ new_texture_coordinates[(row * 2 - 1) * new_width + col * 2 + 1]
+							+ new_texture_coordinates[(row * 2 + 1) * new_width + col * 2 - 1]
+							+ new_texture_coordinates[(row * 2 + 1) * new_width + col * 2 + 1]) / 16.f;
 				}
 			}
 		}

@@ -65,11 +65,11 @@ add_dependencies(assignment1 assignments)
 add_dependencies(assignment2 assignments)
 
 add_custom_command(TARGET assignments POST_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/shaders/
-	${CMAKE_CURRENT_BINARY_DIR}/shaders/)
+	COMMAND ${CMAKE_COMMAND} -E create_symlink
+	${CMAKE_SOURCE_DIR}/shaders
+	${CMAKE_CURRENT_BINARY_DIR}/shaders)
 
 add_custom_command(TARGET assignments POST_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/assets/
-	${CMAKE_CURRENT_BINARY_DIR}/assets/)
+	COMMAND ${CMAKE_COMMAND} -E create_symlink
+	${CMAKE_SOURCE_DIR}/assets
+	${CMAKE_CURRENT_BINARY_DIR}/assets)
