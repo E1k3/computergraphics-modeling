@@ -43,7 +43,7 @@ namespace cg
 
 			explicit HalfEdgeMesh() = delete;
 			explicit HalfEdgeMesh(const SoupMesh& soup);
-			explicit operator SoupMesh() const;
+			SoupMesh toSoupMesh() const;
 
 		private:
 			using EdgeKey = std::pair<Vertex*, Vertex*>;
