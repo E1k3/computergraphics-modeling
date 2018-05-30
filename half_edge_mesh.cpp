@@ -81,7 +81,7 @@ namespace cg
 				he->face->edge = he.get();
 		}
 
-		std::cout << "HalfEdgeMesh: Successfully converted SoupMesh into HalfEdgeMesh with " << half_edges.size() << " half edges\n"; 
+		std::cout << "HalfEdgeMesh: Successfully created HalfEdgeMesh from SoupMesh with " << half_edges.size() << " half edges\n"; 
 	}
 
 	SoupMesh HalfEdgeMesh::toSoupMesh() const
@@ -95,13 +95,21 @@ namespace cg
 		std::transform(vertices.begin(), vertices.end(), soup_normals.begin(), [] (const auto& v) { return v->normal; });
 		std::transform(vertices.begin(), vertices.end(), soup_texture_coordinates.begin(), [] (const auto& v) { return v->texture_coordinate; });
 
+		soup_faces.reserve(faces.size());
 		for(const auto& face : faces)
 		{
 			soup_faces.push_back(std::vector<unsigned int>{});
 			HalfEdge* current = face->edge;
 
 			do {
-				auto index = static_cast<unsigned int>(std::distance<const Vertex*>(vertices.data(), current->next_vertex));
+				auto it = std::find_if(vertices.begin(), vertices.end(), [&] (const auto& v) { return v.get() == current->next_vertex; });
+				if(it == vertices.end())
+				{
+					std::cerr << "HalfEdgeMesh: Unexpected Error during conversion. Next vertex not found\n";
+					throw std::runtime_error{"HalfEdgeMesh: Conversion to SoupMesh failed."};
+				}
+
+				auto index = static_cast<unsigned int>(std::distance(vertices.begin(), it));
 				soup_faces.back().push_back(index);
 				current = face_loop_next(current);
 			} while(current != face->edge);
