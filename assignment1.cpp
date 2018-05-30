@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	// Convert to half edge mesh
 	auto hemesh = HalfEdgeMesh{mesh};
 	// Convert back to renderable triangle soup
-	mesh = static_cast<SoupMesh>(hemesh);
+	mesh = hemesh.toSoupMesh();
 	auto indices = mesh.calculate_indices();
 
 	GLuint vao;
