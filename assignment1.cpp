@@ -13,9 +13,22 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include <iostream>
+#include <string>
 
-int main(int /*argc*/, char** /*argv*/)
+int main(int argc, char** argv)
 {
+	using namespace std::string_literals;
+	if(argc < 1)
+	{
+		std::cerr << "Missing parameters. Expected path to model file.\n";
+		return -1;
+	}
+	if(argc == 1 || argv[1] == "-h"s)
+	{
+		std::cout << "Usage:\n" << argv[0] << " <path> : Loads and displays model at path.\n"
+			<< argv[0] << " -h : Shows this message.\n";
+		return 0;
+	}
 	using namespace cg;
 
 	auto app = Application{"Assignment 1", 640, 480};
@@ -24,7 +37,7 @@ int main(int /*argc*/, char** /*argv*/)
 	auto window = app.get_window();
 
 	// Load mesh
-	auto mesh = SoupMesh{"assets/alfa147.obj"};
+	auto mesh = SoupMesh{argv[1]};
 	// Convert to half edge mesh
 	auto hemesh = HalfEdgeMesh{mesh};
 	// Convert back to renderable triangle soup
