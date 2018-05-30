@@ -84,7 +84,7 @@ namespace cg
 		std::cout << "HalfEdgeMesh: Successfully converted SoupMesh into HalfEdgeMesh with " << half_edges.size() << " half edges\n"; 
 	}
 
-	HalfEdgeMesh::operator SoupMesh() const
+	SoupMesh HalfEdgeMesh::toSoupMesh() const
 	{
 		std::vector<glm::vec3> soup_positions{vertices.size()};
 		std::vector<glm::vec3> soup_normals{vertices.size()};
