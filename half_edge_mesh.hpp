@@ -6,6 +6,7 @@
 #include "glm/glm.hpp"
 
 #include <functional>
+#include <memory>
 #include <vector>
 #include <unordered_map>
 #include <string>
@@ -56,9 +57,9 @@ namespace cg
 				}
 			};
 			// HalfEdge structure
-			std::unordered_map<EdgeKey, HalfEdge, Hasher> half_edges;
-			std::vector<Face> faces;
-			std::vector<Vertex> vertices;
+			std::unordered_map<EdgeKey, std::unique_ptr<HalfEdge>, Hasher> half_edges;
+			std::vector<std::unique_ptr<Face>> faces;
+			std::vector<std::unique_ptr<Vertex>> vertices;
 	};
 }
 
