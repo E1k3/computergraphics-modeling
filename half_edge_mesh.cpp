@@ -75,7 +75,7 @@ namespace cg
 				he.face->edge = &he;
 		}
 
-		std::cout << "HalfEdgeMesh: Successfully converted SoupMesh into HalfEdgeMesh with " << half_edges.size() << " half edges\n"; 
+		std::cout << "HalfEdgeMesh: Successfully created HalfEdgeMesh from SoupMesh with " << half_edges.size() << " half edges\n"; 
 	}
 
 	SoupMesh HalfEdgeMesh::toSoupMesh() const
