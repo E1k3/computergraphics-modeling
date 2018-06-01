@@ -28,8 +28,7 @@ namespace cg
 
 		// Create faces
 		faces.resize(soup.get_faces().size());
-		for(auto& face : faces)
-			face = std::make_unique<Face>();
+		std::generate(faces.begin(), faces.end(), [] () { return std::make_unique<Face>(); });
 
 		// Create HalfEdges
 		for(size_t fi = 0; fi < soup.get_faces().size(); ++fi)
@@ -81,11 +80,15 @@ namespace cg
 				he->face->edge = he.get();
 		}
 
+		// Sort vertices for fast index calculation
+		std::sort(vertices.begin(), vertices.end(), [] (const auto& v1, const auto& v2) { return v1.get() < v2.get(); });
+
 		std::cout << "HalfEdgeMesh: Successfully created HalfEdgeMesh from SoupMesh with " << half_edges.size() << " half edges\n"; 
 	}
 
 	SoupMesh HalfEdgeMesh::toSoupMesh() const
 	{
+		std::cout << "Started conversion\n";
 		std::vector<glm::vec3> soup_positions{vertices.size()};
 		std::vector<glm::vec3> soup_normals{vertices.size()};
 		std::vector<glm::vec2> soup_texture_coordinates{vertices.size()};
@@ -96,14 +99,17 @@ namespace cg
 		std::transform(vertices.begin(), vertices.end(), soup_texture_coordinates.begin(), [] (const auto& v) { return v->texture_coordinate; });
 
 		soup_faces.reserve(faces.size());
+		int facei = 0;
 		for(const auto& face : faces)
 		{
+			std::cout << "face " << facei++ << " of " << faces.size() << '\n';
 			soup_faces.push_back(std::vector<unsigned int>{});
 			HalfEdge* current = face->edge;
 
 			do {
-				auto it = std::find_if(vertices.begin(), vertices.end(), [&] (const auto& v) { return v.get() == current->next_vertex; });
-				if(it == vertices.end())
+				// Search for the index of the next vector using fast binary search
+				auto it = std::lower_bound(vertices.begin(), vertices.end(), current->next_vertex, [] (const auto& v1, const Vertex* v2) { return v1.get() < v2; });
+				if(it->get() != current->next_vertex)
 				{
 					std::cerr << "HalfEdgeMesh: Unexpected Error during conversion. Next vertex not found\n";
 					throw std::runtime_error{"HalfEdgeMesh: Conversion to SoupMesh failed."};

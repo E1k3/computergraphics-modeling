@@ -92,7 +92,8 @@ int main(int argc, char** argv)
 		if(input.get_key(GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(window, GLFW_TRUE);
 
-		mvp = glm::rotate(glm::mat4{1.f}, static_cast<float>(glfwGetTime()) * sensitivity, glm::vec3{0.2f, 0.4f, 0.6f});
+		mvp = glm::rotate(glm::mat4{1.f}, std::sin(static_cast<float>(glfwGetTime()) * sensitivity) * 0.5f, glm::vec3{1.f, 0.f, 0.f});
+		mvp = glm::rotate(mvp, static_cast<float>(glfwGetTime()) * sensitivity * 1.0f, glm::vec3{0.f, 1.f, 0.f});
 		glUniformMatrix4fv(mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 		
