@@ -84,7 +84,7 @@ namespace cg
 		// Sort vertices for fast index calculation
 		std::sort(vertices.begin(), vertices.end(), [] (const auto& v1, const auto& v2) { return v1.get() < v2.get(); });
 
-		std::cout << "HalfEdgeMesh: Successfully created HalfEdgeMesh from SoupMesh with " << half_edges.size() << " half edges\n"; 
+		std::cout << "HalfEdgeMesh: Successfully created HalfEdgeMesh from SoupMesh with " << faces.size() << " faces, " << half_edges.size() << " half edges and " << vertices.size() << " vertices\n"; 
 	}
 
 	SoupMesh HalfEdgeMesh::toSoupMesh() const
@@ -100,7 +100,6 @@ namespace cg
 		std::transform(vertices.begin(), vertices.end(), soup_texture_coordinates.begin(), [] (const auto& v) { return v->texture_coordinate; });
 
 		soup_faces.reserve(faces.size());
-		int facei = 0;
 		for(const auto& face : faces)
 		{
 			soup_faces.push_back(std::vector<unsigned int>{});
@@ -121,7 +120,7 @@ namespace cg
 			} while(current != face->edge);
 		}
 
-		std::cout << "HalfEdgeMesh: Successfully converted HalfEdgeMesh to SoupMesh with " << soup_positions.size() << " vertices\n";
+		std::cout << "HalfEdgeMesh: Successfully converted HalfEdgeMesh to SoupMesh with " << soup_faces.size() << " faces and " << soup_positions.size() << " vertices\n";
 
 		return SoupMesh(soup_positions, soup_normals, soup_texture_coordinates, soup_faces);
 	}
