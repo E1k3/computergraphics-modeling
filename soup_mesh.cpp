@@ -11,18 +11,19 @@ namespace cg
 {
 	SoupMesh::SoupMesh(const std::string& file_path)
 	{
+		std::cout << "SoupMesh: Started construction from model file\n";
 		auto importer = Assimp::Importer{};
 		const aiScene* scene = importer.ReadFile(file_path, aiProcess_JoinIdenticalVertices);
 
 		if(!scene)
 		{
-			std::cerr << "Assimp failed to read file " << file_path << " with message: " << importer.GetErrorString() << '\n';
-			throw std::runtime_error{"Assimp failed to load file."};
+			std::cerr << "SoupMesh: Assimp failed to read file " << file_path << " with message: " << importer.GetErrorString() << '\n';
+			throw std::runtime_error{"SoupMesh: Assimp failed to load file."};
 		}
 		if(!scene->HasMeshes())
 		{
-			std::cerr << "Model " << file_path << " does not contain a mesh\n";
-			throw std::runtime_error{"Model does not contain a mesh."};
+			std::cerr << "SoupMesh: Model " << file_path << " does not contain a mesh\n";
+			throw std::runtime_error{"SoupMesh: Model does not contain a mesh."};
 		}
 
 		// Reserve space for meshes and check if all have faces and positions
@@ -34,7 +35,7 @@ namespace cg
 				num_faces += scene->mMeshes[mi]->mNumFaces;
 			else
 			{
-				std::cerr << "Mesh" << mi << " in " << file_path << " does not have faces\n";
+				std::cerr << "SoupMesh: Mesh" << mi << " in " << file_path << " does not have faces\n";
 				throw std::invalid_argument{"SoupMesh: Construction from file failed."};
 			}
 
@@ -42,8 +43,8 @@ namespace cg
 				num_faces += scene->mMeshes[mi]->mNumVertices;
 			else
 			{
-				std::cerr << "Mesh " << mi << " in " << file_path << " does not have positions\n";
-				throw std::invalid_argument{"Soup mesh construction from file failed."};
+				std::cerr << "SoupMesh: Mesh " << mi << " in " << file_path << " does not have positions\n";
+				throw std::invalid_argument{"SoupMesh: Construction from file failed."};
 			}
 		}
 		faces.reserve(num_faces);
@@ -100,22 +101,23 @@ namespace cg
 	{
 		if(positions.empty() || faces.empty())
 		{
-			std::cerr << "Soup mesh construction missing positions or faces\n";
-			throw std::invalid_argument{"Soup mesh construction failed."};
+			std::cerr << "SoupMesh: Construction missing positions or faces\n";
+			throw std::invalid_argument{"SoupMesh: Construction failed."};
 		}
-		else
+		
+		if(!normals.empty() && positions.size() != normals.size())
 		{
-			if(!normals.empty() && positions.size() != normals.size())
-			{
-				std::cerr << "Soup mesh construction with differently sized position and normal collections\n";
-				throw std::invalid_argument{"Soup mesh construction failed."};
-			}
-			if(!texture_coordinates.empty() && positions.size() != texture_coordinates.size())
-			{
-				std::cerr << "Soup mesh construction with differently sized position and texture_coordinate collections\n";
-				throw std::invalid_argument{"Soup mesh construction failed."};
-			}
+			std::cerr << "SoupMesh: Construction with differently sized position and normal collections\n";
+			throw std::invalid_argument{"SoupMesh: Construction failed."};
 		}
+		if(!texture_coordinates.empty() && positions.size() != texture_coordinates.size())
+		{
+			std::cerr << "SoupMesh: Construction with differently sized position and texture_coordinate collections\n";
+			throw std::invalid_argument{"SoupMesh: Construction failed."};
+		}
+
+		normals.resize(positions.size());
+		texture_coordinates.resize(positions.size());
 	}
 
 	std::vector<unsigned int> SoupMesh::calculate_indices() const

@@ -7,6 +7,7 @@ namespace cg
 {
 	HalfEdgeMesh::HalfEdgeMesh(const SoupMesh& soup)
 	{
+		std::cout << "HalfEdgeMesh: Started construction from SoupMesh\n";
 		if(soup.get_faces().empty() || soup.get_positions().empty())
 		{
 			std::cerr << "HalfEdgeMesh: Constructed from triangle soup that has no faces or no vertices\n";
@@ -88,7 +89,7 @@ namespace cg
 
 	SoupMesh HalfEdgeMesh::toSoupMesh() const
 	{
-		std::cout << "Started conversion\n";
+		std::cout << "HalfEdgeMesh: Started HalfEdgeMesh to SoupMesh conversion\n";
 		std::vector<glm::vec3> soup_positions{vertices.size()};
 		std::vector<glm::vec3> soup_normals{vertices.size()};
 		std::vector<glm::vec2> soup_texture_coordinates{vertices.size()};
