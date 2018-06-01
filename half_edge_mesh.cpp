@@ -103,7 +103,6 @@ namespace cg
 		int facei = 0;
 		for(const auto& face : faces)
 		{
-			std::cout << "face " << facei++ << " of " << faces.size() << '\n';
 			soup_faces.push_back(std::vector<unsigned int>{});
 			HalfEdge* current = face->edge;
 
