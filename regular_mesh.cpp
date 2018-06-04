@@ -37,11 +37,11 @@ namespace cg
 
 	std::vector<unsigned int> RegularMesh::calculate_indices() const
 	{
-		auto indices = std::vector<unsigned int>{};
+		std::vector<unsigned int> indices{};
 
-		for(size_t row = 0; row < height - 1; ++row)
+		for(size_t row{0}; row < height - 1; ++row)
 		{
-			for(size_t col = 0; col < width - 1; ++col)
+			for(size_t col{0}; col < width - 1; ++col)
 			{
 				indices.push_back(row * width + col);
 				indices.push_back((row + 1) * width + col);
@@ -61,14 +61,14 @@ namespace cg
 			std::cout << "RegularMesh: Loop subdivision does not work on meshes smaller than 2x2\n";
 			throw std::runtime_error{"Regular mesh loop subdivision failed."};
 		}
-		auto new_width = width * 2 - 1;
-		auto new_positions = std::vector<glm::vec3>(new_width * (height * 2 - 1));
-		auto new_normals = std::vector<glm::vec3>(new_width * (height * 2 - 1));
-		auto new_texture_coordinates = std::vector<glm::vec2>(new_width * (height * 2 - 1));
+		auto new_width{width * 2 - 1};
+		std::vector<glm::vec3> new_positions(new_width * (height * 2 - 1));
+		std::vector<glm::vec3> new_normals(new_width * (height * 2 - 1));
+		std::vector<glm::vec2> new_texture_coordinates(new_width * (height * 2 - 1));
 
-		for(size_t row = 0; row < height; ++row)
+		for(size_t row{0}; row < height; ++row)
 		{
-			for(size_t col = 0; col < width; ++col)
+			for(size_t col{0}; col < width; ++col)
 			{
 				// Odd vertices
 				// Right
@@ -232,26 +232,26 @@ namespace cg
 			std::cout << "RegularMesh: Catmull-clark subdivision does not work on meshes smaller than 3x3\n";
 			throw std::runtime_error{"Regular mesh catmull-clark subdivision failed."};
 		}
-		auto new_width = width * 2 - 1;
-		auto new_height = height * 2 - 1;
-		auto new_positions = std::vector<glm::vec3>(new_width * (height * 2 - 1));
-		auto new_normals = std::vector<glm::vec3>(new_width * (height * 2 - 1));
-		auto new_texture_coordinates = std::vector<glm::vec2>(new_width * (height * 2 - 1));
+		auto new_width{width * 2 - 1};
+		auto new_height{height * 2 - 1};
+		std::vector<glm::vec3> new_positions(new_width * (height * 2 - 1));
+		std::vector<glm::vec3> new_normals(new_width * (height * 2 - 1));
+		std::vector<glm::vec2> new_texture_coordinates(new_width * (height * 2 - 1));
 
 
 		// TODO:change ugly unsigned arithmetic
-		auto get_index = [] (size_t row, size_t col, size_t width, size_t height) {
+		auto get_index{[] (size_t row, size_t col, size_t width, size_t height) {
 			if(row == static_cast<size_t>(-1)) row = 1;
 			if(col == static_cast<size_t>(-1)) col = 1;
 			if(row == height) row = height - 2;
 			if(col == width) col = width - 2;
 			return row * width + col;
-		};
+		}};
 
 		// Faces
-		for(size_t row = 0; row < height; ++row)
+		for(size_t row{0}; row < height; ++row)
 		{
-			for(size_t col = 0; col < width; ++col)
+			for(size_t col{0}; col < width; ++col)
 			{
 				if(row + 1 < height && col + 1 < width)
 				{
@@ -274,9 +274,9 @@ namespace cg
 		}
 
 		// Edges
-		for(size_t row = 0; row < height; ++row)
+		for(size_t row{0}; row < height; ++row)
 		{
-			for(size_t col = 0; col < width; ++col)
+			for(size_t col{0}; col < width; ++col)
 			{
 				// Right edge
 				new_positions[get_index(row * 2, col * 2 + 1, new_width, new_height)] = (positions[get_index(row, col, width, height)]
@@ -313,9 +313,9 @@ namespace cg
 		}
 
 		// Old vertices
-		for(size_t row = 0; row < height; ++row)
+		for(size_t row{0}; row < height; ++row)
 		{
-			for(size_t col = 0; col < width; ++col)
+			for(size_t col{0}; col < width; ++col)
 			{
 				// Horizontal boundary vertex
 				new_positions[get_index(row * 2, col * 2, new_width, new_height)] = (positions[get_index(row, col, width, height)] * 8.f
@@ -364,15 +364,15 @@ namespace cg
 			std::cout << "RegularMesh: Catmull-clark subdivision with sharp bounds does not work on meshes smaller than 2x2\n";
 			throw std::runtime_error{"Regular mesh catmull-clark subdivision with sharp bounds failed."};
 		}
-		auto new_width = width * 2 - 1;
-		auto new_positions = std::vector<glm::vec3>(new_width * (height * 2 - 1));
-		auto new_normals = std::vector<glm::vec3>(new_width * (height * 2 - 1));
-		auto new_texture_coordinates = std::vector<glm::vec2>(new_width * (height * 2 - 1));
+		auto new_width{width * 2 - 1};
+		std::vector<glm::vec3> new_positions(new_width * (height * 2 - 1));
+		std::vector<glm::vec3> new_normals(new_width * (height * 2 - 1));
+		std::vector<glm::vec2> new_texture_coordinates(new_width * (height * 2 - 1));
 
 		// Faces
-		for(size_t row = 0; row < height; ++row)
+		for(size_t row{0}; row < height; ++row)
 		{
-			for(size_t col = 0; col < width; ++col)
+			for(size_t col{0}; col < width; ++col)
 			{
 				if(row + 1 < height && col + 1 < width)
 				{
@@ -395,9 +395,9 @@ namespace cg
 		}
 
 		// Edges
-		for(size_t row = 0; row < height; ++row)
+		for(size_t row{0}; row < height; ++row)
 		{
-			for(size_t col = 0; col < width; ++col)
+			for(size_t col{0}; col < width; ++col)
 			{
 				// Right edge
 				// Horizontal boundary
@@ -466,9 +466,9 @@ namespace cg
 		}
 
 		// Old vertices
-		for(size_t row = 0; row < height; ++row)
+		for(size_t row{0}; row < height; ++row)
 		{
-			for(size_t col = 0; col < width; ++col)
+			for(size_t col{0}; col < width; ++col)
 			{
 				// Horizontal boundary vertex
 				if((row == 0 || row + 1 == height) && col > 0 && col + 1 < width)

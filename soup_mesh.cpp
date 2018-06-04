@@ -12,8 +12,8 @@ namespace cg
 	SoupMesh::SoupMesh(const std::string& file_path)
 	{
 		std::cout << "SoupMesh: Started construction from model file\n";
-		auto importer = Assimp::Importer{};
-		const aiScene* scene = importer.ReadFile(file_path, aiProcess_JoinIdenticalVertices);
+		Assimp::Importer importer{};
+		const aiScene* scene{importer.ReadFile(file_path, aiProcess_JoinIdenticalVertices)};
 
 		if(!scene)
 		{
@@ -27,9 +27,9 @@ namespace cg
 		}
 
 		// Reserve space for meshes and check if all have faces and positions
-		unsigned int num_faces = 0;
-		unsigned int num_vertices = 0;
-		for(unsigned int mi = 0; mi < scene->mNumMeshes; ++mi)
+		unsigned int num_faces{0};
+		unsigned int num_vertices{0};
+		for(unsigned int mi{0}; mi < scene->mNumMeshes; ++mi)
 		{
 			if(scene->mMeshes[mi]->HasFaces())
 				num_faces += scene->mMeshes[mi]->mNumFaces;
@@ -52,12 +52,12 @@ namespace cg
 		normals.reserve(num_vertices);
 		texture_coordinates.reserve(num_vertices);
 
-		for(unsigned int mi = 0; mi < scene->mNumMeshes; ++mi)
+		for(unsigned int mi{0}; mi < scene->mNumMeshes; ++mi)
 		{
-			auto& mesh = *scene->mMeshes[mi];
+			auto& mesh{*scene->mMeshes[mi]};
 
 			// Copy faces
-			for(unsigned int fi = 0; fi < mesh.mNumFaces; ++fi)
+			for(unsigned int fi{0}; fi < mesh.mNumFaces; ++fi)
 			{
 				faces.emplace_back(mesh.mFaces[fi].mIndices, mesh.mFaces[fi].mIndices + mesh.mFaces[fi].mNumIndices);
 				// Offset indices to start at the current meshs vertices
@@ -76,7 +76,7 @@ namespace cg
 
 			// Copy the first channel of texture coordinates
 			if(mesh.HasTextureCoords(0))
-				for(unsigned int ti = 0; ti < mesh.mNumVertices; ++ti)
+				for(unsigned int ti{0}; ti < mesh.mNumVertices; ++ti)
 					texture_coordinates.emplace_back(mesh.mTextureCoords[0][ti].x, mesh.mTextureCoords[0][ti].y);
 			// If the current mesh does not have any, fill with zeros
 			else
@@ -84,8 +84,8 @@ namespace cg
 		}
 
 		// Remove degenerate faces
-		auto old_size = faces.size();
-		constexpr auto is_degenerate = [] (std::vector<unsigned int> face) { std::sort(face.begin(), face.end()); return std::adjacent_find(face.begin(), face.end()) != face.end(); };
+		auto old_size{faces.size()};
+		constexpr auto is_degenerate{[] (std::vector<unsigned int> face) { std::sort(face.begin(), face.end()); return std::adjacent_find(face.begin(), face.end()) != face.end(); }};
 		faces.erase(std::remove_if(faces.begin(), faces.end(), is_degenerate), faces.end());
 		if(old_size != faces.size())
 			std::cout << "SoupMesh: Removed " << old_size - faces.size() << " degenerate faces\n";
@@ -122,9 +122,9 @@ namespace cg
 
 	std::vector<unsigned int> SoupMesh::calculate_indices() const
 	{
-		auto indices = std::vector<unsigned int>{};
+		std::vector<unsigned int> indices{};
 
-		int num_ignored_primitives = 0;
+		int num_ignored_primitives{0};
 		for(const auto& face : faces)
 		{
 			// Ignore lines and points
@@ -136,7 +136,7 @@ namespace cg
 			// Triangulate faces with more than 3 vertices
 			else if(face.size() > 3)
 			{
-				for(size_t i = 1; i < face.size()-1; ++i)
+				for(size_t i{1}; i < face.size()-1; ++i)
 				{
 					indices.push_back(face[0]);
 					indices.push_back(face[i]);
