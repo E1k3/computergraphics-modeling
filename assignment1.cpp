@@ -31,18 +31,18 @@ int main(int argc, char** argv)
 	}
 	using namespace cg;
 
-	auto app = Application{"Assignment 1", 640, 480};
-	auto input = InputManager{};
+	Application app{"Assignment 1", 640, 480};
+	InputManager input{};
 	app.set_input(&input);
-	auto window = app.get_window();
+	GLFWwindow* window{app.get_window()};
 
 	// Load mesh
-	auto mesh = SoupMesh{argv[1]};
+	SoupMesh mesh{argv[1]};
 	// Convert to half edge mesh
-	auto hemesh = HalfEdgeMesh{mesh};
+	HalfEdgeMesh hemesh{mesh};
 	// Convert back to renderable triangle soup
 	mesh = hemesh.toSoupMesh();
-	auto indices = mesh.calculate_indices();
+	auto indices{mesh.calculate_indices()};
 
 	GLuint vao;
 	GLuint vbo[2];
@@ -59,15 +59,15 @@ int main(int argc, char** argv)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	// Load shader
-	auto program = glCreateProgram();
+	auto program{glCreateProgram()};
 
-	auto vs_path = std::string{"shaders/vertex_shader.glsl"};
-	auto vs = glCreateShader(GL_VERTEX_SHADER);
+	std::string vs_path{"shaders/vertex_shader.glsl"};
+	auto vs{glCreateShader(GL_VERTEX_SHADER)};
 	glutil::load_compile_shader(vs, {vs_path});
 	glAttachShader(program, vs);
 
-	auto fs_path = std::string{"shaders/fragment_shader.glsl"};
-	auto fs = glCreateShader(GL_FRAGMENT_SHADER);
+	std::string fs_path{"shaders/fragment_shader.glsl"};
+	auto fs{glCreateShader(GL_FRAGMENT_SHADER)};
 	glutil::load_compile_shader(fs, {fs_path});
 	glAttachShader(program, fs);
 
@@ -76,9 +76,9 @@ int main(int argc, char** argv)
 	glDetachShader(program, vs);
 	glDetachShader(program, fs);
 
-	auto mvp_uniform = glGetUniformLocation(program, "mvp");
-	auto mvp = glm::mat4{1.f};
-	auto sensitivity = 1.f;
+	auto mvp_uniform{glGetUniformLocation(program, "mvp")};
+	glm::mat4 mvp{1.f};
+	float sensitivity{1.f};
 
 
 	glEnable(GL_DEPTH_TEST);

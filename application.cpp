@@ -24,7 +24,7 @@ namespace cg
 
 
 		// Window init
-		constexpr auto window_deleter = [] (GLFWwindow* window) { glfwDestroyWindow(window); glfwTerminate(); };
+		constexpr auto window_deleter{[] (GLFWwindow* window) { glfwDestroyWindow(window); glfwTerminate(); }};
 		window = WindowPointer{glfwCreateWindow(window_width, window_height, title.c_str(), nullptr, nullptr), window_deleter};
 		
 		if(!window)
@@ -42,7 +42,7 @@ namespace cg
 
 		// GLEW init
 		glewExperimental = GL_TRUE;
-		GLenum status = glewInit();
+		GLenum status{glewInit()};
 
 		if(status != GLEW_OK)
 		{
@@ -77,7 +77,7 @@ namespace cg
 		{
 			glfwSetWindowUserPointer(window.get(), input);
 
-			auto key_callback = [] (GLFWwindow* window, int keycode, int /*scancode*/, int action, int /*mods*/) {
+			auto key_callback{[] (GLFWwindow* window, int keycode, int /*scancode*/, int action, int /*mods*/) {
 				auto input_ptr = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 				if(input_ptr)
 				{
@@ -86,10 +86,10 @@ namespace cg
 					else if(action == GLFW_RELEASE)
 						input_ptr->key_released(keycode);
 				}
-			};
+			}};
 			glfwSetKeyCallback(window.get(), key_callback);
 
-			auto button_callback = [] (GLFWwindow* window, int buttoncode, int action, int /*modifier*/) {
+			auto button_callback{[] (GLFWwindow* window, int buttoncode, int action, int /*modifier*/) {
 				auto input_ptr = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 				if(input_ptr)
 				{
@@ -98,28 +98,28 @@ namespace cg
 					else if(action == GLFW_RELEASE)
 						input_ptr->key_released(buttoncode);
 				}
-			};
+			}};
 			glfwSetMouseButtonCallback(window.get(), button_callback);
 
-			auto cursor_callback = [] (GLFWwindow* window, double x, double y) {
+			auto cursor_callback{[] (GLFWwindow* window, double x, double y) {
 				auto input_ptr = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 				if(input_ptr)
 					input_ptr->cursor_moved(glm::vec2{static_cast<float>(x), static_cast<float>(y)});
-			};
+			}};
 			glfwSetCursorPosCallback(window.get(), cursor_callback);
 
-			auto scroll_callback = [] (GLFWwindow* window, double x, double y) {
+			auto scroll_callback{[] (GLFWwindow* window, double x, double y) {
 				auto input_ptr = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 				if(input_ptr)
 					input_ptr->mouse_scrolled(glm::ivec2{static_cast<int>(x), static_cast<int>(y)});
-			};
+			}};
 			glfwSetScrollCallback(window.get(), scroll_callback);
 			
-			auto focus_callback = [] (GLFWwindow* window, int /*focused*/) {
+			auto focus_callback{[] (GLFWwindow* window, int /*focused*/) {
 				auto input_ptr = static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 				if(input_ptr)
 					input_ptr->ignore_cursor_once();
-			};
+			}};
 			glfwSetWindowFocusCallback(window.get(), focus_callback);
 		}
 	}

@@ -18,22 +18,22 @@ int main(int /*argc*/, char** /*argv*/)
 {
 	using namespace cg;
 
-	auto app = Application{"Assignment 2", 640, 480};
-	auto input = InputManager{};
+	Application app{"Assignment 2", 640, 480};
+	InputManager input{};
 	app.set_input(&input);
-	auto window = app.get_window();
+	GLFWwindow* window{app.get_window()};
 
 	// Calculate positions
-	auto positions = std::vector<glm::vec3>(5*5);
-	auto xys = std::array<float, 5>{-2.f, -1.f, 0.f, 1.f, 2.f};
-	auto zs = std::array<float, 5>{1.f, 2.f, 5.f, 1.f, 3.f};
-	for(size_t row = 0; row < 5; ++row)
-		for(size_t col = 0; col < 5; ++col)
+	std::vector<glm::vec3> positions(5*5);
+	std::array<float, 5> xys{-2.f, -1.f, 0.f, 1.f, 2.f};
+	std::array<float, 5> zs{1.f, 2.f, 5.f, 1.f, 3.f};
+	for(size_t row{0}; row < 5; ++row)
+		for(size_t col{0}; col < 5; ++col)
 			positions[row * 5 + col] = glm::vec3{xys[row], xys[col], zs[row]};
 
 	// Create mesh
-	auto mesh = RegularMesh(5, 5, positions, {}, {});
-	auto indices = mesh.calculate_indices();
+	RegularMesh mesh{5, 5, positions, {}, {}};
+	auto indices{mesh.calculate_indices()};
 
 	GLuint vao;
 	GLuint vbo[2];
@@ -50,15 +50,15 @@ int main(int /*argc*/, char** /*argv*/)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	// Load shader
-	auto program = glCreateProgram();
+	auto program{glCreateProgram()};
 
-	auto vs_path = std::string{"shaders/vertex_shader.glsl"};
-	auto vs = glCreateShader(GL_VERTEX_SHADER);
+	std::string vs_path{"shaders/vertex_shader.glsl"};
+	auto vs{glCreateShader(GL_VERTEX_SHADER)};
 	glutil::load_compile_shader(vs, {vs_path});
 	glAttachShader(program, vs);
 
-	auto fs_path = std::string{"shaders/fragment_shader.glsl"};
-	auto fs = glCreateShader(GL_FRAGMENT_SHADER);
+	std::string fs_path{"shaders/fragment_shader.glsl"};
+	auto fs{glCreateShader(GL_FRAGMENT_SHADER)};
 	glutil::load_compile_shader(fs, {fs_path});
 	glAttachShader(program, fs);
 
@@ -67,9 +67,9 @@ int main(int /*argc*/, char** /*argv*/)
 	glDetachShader(program, vs);
 	glDetachShader(program, fs);
 
-	auto mvp_uniform = glGetUniformLocation(program, "mvp");
-	auto mvp = glm::mat4{1.f};
-	auto sensitivity = 1.f;
+	auto mvp_uniform{glGetUniformLocation(program, "mvp")};
+	glm::mat4 mvp{1.f};
+	float sensitivity{1.f};
 
 
 	glEnable(GL_DEPTH_TEST);

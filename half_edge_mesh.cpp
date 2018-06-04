@@ -16,7 +16,7 @@ namespace cg
 
 		// Copy vertices
 		vertices.resize(soup.get_positions().size());
-		for(size_t i = 0; i < vertices.size(); ++i)
+		for(size_t i{0}; i < vertices.size(); ++i)
 		{
 			vertices[i] = std::make_unique<Vertex>();
 
@@ -32,19 +32,19 @@ namespace cg
 		std::generate(faces.begin(), faces.end(), [] () { return std::make_unique<Face>(); });
 
 		// Create HalfEdges
-		for(size_t fi = 0; fi < soup.get_faces().size(); ++fi)
+		for(size_t fi{0}; fi < soup.get_faces().size(); ++fi)
 		{
-			const auto& face = soup.get_faces()[fi];
+			const auto& face{soup.get_faces()[fi]};
 			// Ignore faces with less than 3 vertices
 			if(face.size() >= 3)
 			{
 				EdgeKey last{nullptr, nullptr};
-				for(size_t i = 0; i < face.size(); ++i)
+				for(size_t i{0}; i < face.size(); ++i)
 				{
-					Vertex* cw_vertex = vertices[face[i]].get();
-					Vertex* ccw_vertex = vertices[face[(i+1) % face.size()]].get();
-					EdgeKey cw_edge_key = EdgeKey{cw_vertex, ccw_vertex};
-					EdgeKey ccw_edge_key = EdgeKey{ccw_vertex, cw_vertex};
+					Vertex* cw_vertex{vertices[face[i]].get()};
+					Vertex* ccw_vertex{vertices[face[(i+1) % face.size()]].get()};
+					EdgeKey cw_edge_key{cw_vertex, ccw_vertex};
+					EdgeKey ccw_edge_key{ccw_vertex, cw_vertex};
 
 					// Create HalfEdges if they don't exist already
 					half_edges.insert({cw_edge_key, std::make_unique<HalfEdge>()});
@@ -73,7 +73,7 @@ namespace cg
 		// Set reference edge for each vertex and each face
 		for(auto& p : half_edges)
 		{
-			auto& he = p.second;
+			auto& he{p.second};
 
 			if(!he->next_vertex->edge)
 				he->next_vertex->edge = he.get();
@@ -103,18 +103,18 @@ namespace cg
 		for(const auto& face : faces)
 		{
 			soup_faces.push_back(std::vector<unsigned int>{});
-			HalfEdge* current = face->edge;
+			HalfEdge* current{face->edge};
 
 			do {
 				// Search for the index of the next vector using fast binary search
-				auto it = std::lower_bound(vertices.begin(), vertices.end(), current->next_vertex, [] (const auto& v1, const Vertex* v2) { return v1.get() < v2; });
+				auto it{std::lower_bound(vertices.begin(), vertices.end(), current->next_vertex, [] (const auto& v1, const Vertex* v2) { return v1.get() < v2; })};
 				if(it->get() != current->next_vertex)
 				{
 					std::cerr << "HalfEdgeMesh: Unexpected Error during conversion. Next vertex not found\n";
 					throw std::runtime_error{"HalfEdgeMesh: Conversion to SoupMesh failed."};
 				}
 
-				auto index = static_cast<unsigned int>(std::distance(vertices.begin(), it));
+				unsigned int index{static_cast<unsigned int>(std::distance(vertices.begin(), it))};
 				soup_faces.back().push_back(index);
 				current = face_loop_next(current);
 			} while(current != face->edge);
