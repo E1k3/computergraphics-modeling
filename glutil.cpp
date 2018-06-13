@@ -11,7 +11,7 @@ namespace cg
 		std::vector<std::string> sources{};
 		for(const auto& path : file_paths)
 		{
-			sources.push_back("");
+			sources.emplace_back();
 			std::ifstream ifs{path};
 			std::copy(std::istreambuf_iterator<char>{ifs}, std::istreambuf_iterator<char>{},
 					std::back_inserter(sources.back()));

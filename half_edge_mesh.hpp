@@ -39,8 +39,19 @@ namespace cg
 				Vertex* next_vertex{nullptr};
 			};
 
-			static HalfEdgeMesh::HalfEdge* face_loop_next(HalfEdgeMesh::HalfEdge* current);
-			static HalfEdgeMesh::HalfEdge* vertex_loop_next(HalfEdgeMesh::HalfEdge* current);
+			/// Returns current->next->companion, or nullptr if current->next does not exist.
+			/// Throws when called with nullptr
+			static HalfEdge* face_loop_next(HalfEdge* current);
+			/// Returns current->next.
+			/// Throws when called with nullptr
+			static HalfEdge* vertex_loop_next(HalfEdge* current);
+
+			/// Goes forwards until the half edge before current or nullptr is reached. If nullptr is reached, nullptr is returned.
+			static HalfEdge* vertex_loop_previous_fast(HalfEdge* current);
+			/// Searches through all half edges and returns the first pointing to current. If no half edge is found, returns nullptr.
+			HalfEdge* vertex_loop_previous_bruteforce(HalfEdge* current) const;
+			/// Tries vertex_loop_previous_fast, if it fails, uses vertex_loop_previous_bruteforce.
+			HalfEdge* vertex_loop_previous_adaptive(HalfEdge* current) const;
 
 			explicit HalfEdgeMesh() = delete;
 			explicit HalfEdgeMesh(const SoupMesh& soup);

@@ -49,11 +49,11 @@ namespace cg
 					// Create HalfEdges if they don't exist already
 					half_edges.insert({cw_edge_key, std::make_unique<HalfEdge>()});
 					half_edges.insert({ccw_edge_key, std::make_unique<HalfEdge>()});
-					
+
 					// Set clockwise halfedge refs
 					half_edges[cw_edge_key]->next_vertex = cw_vertex;
 					half_edges[cw_edge_key]->companion_edge = half_edges[ccw_edge_key].get();
-					
+
 					// Set current edge as last.next_edge
 					if(last.first && last.second)
 						half_edges[last]->next_edge = half_edges[cw_edge_key].get();
@@ -84,7 +84,7 @@ namespace cg
 		// Sort vertices for fast index calculation
 		std::sort(vertices.begin(), vertices.end(), [] (const auto& v1, const auto& v2) { return v1.get() < v2.get(); });
 
-		std::cout << "HalfEdgeMesh: Successfully created HalfEdgeMesh from SoupMesh with " << faces.size() << " faces, " << half_edges.size() << " half edges and " << vertices.size() << " vertices\n"; 
+		std::cout << "HalfEdgeMesh: Successfully created HalfEdgeMesh from SoupMesh with " << faces.size() << " faces, " << half_edges.size() << " half edges and " << vertices.size() << " vertices\n";
 	}
 
 	SoupMesh HalfEdgeMesh::toSoupMesh() const
@@ -117,7 +117,10 @@ namespace cg
 				unsigned int index{static_cast<unsigned int>(std::distance(vertices.begin(), it))};
 				soup_faces.back().push_back(index);
 				current = face_loop_next(current);
-			} while(current != face->edge);
+			} while(current && current != face->edge);
+
+			if(!current)
+				throw std::runtime_error{"HalfEdgeMesh: Faceloop reached nullptr during conversion to SoupMesh."};
 		}
 
 		std::cout << "HalfEdgeMesh: Successfully converted HalfEdgeMesh to SoupMesh with " << soup_faces.size() << " faces and " << soup_positions.size() << " vertices\n";
@@ -127,15 +130,39 @@ namespace cg
 
 	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::face_loop_next(HalfEdgeMesh::HalfEdge* current)
 	{
-		if(current && current->next_edge && current->next_edge->companion_edge)
+		if(current && current->next_edge)
 			return current->next_edge->companion_edge;
-		throw std::invalid_argument("Faceloop reached nullptr.");
+		if(current)
+			return nullptr;
+		throw std::invalid_argument("HalfEdgeMesh: Faceloop called with nullptr.");
 	}
 
 	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_next(HalfEdgeMesh::HalfEdge* current)
 	{
-		if(current && current->next_edge)
+		if(current)
 			return current->next_edge;
-		throw std::invalid_argument("Vertexloop reached nullptr.");
+		throw std::invalid_argument("HalfEdgeMesh: Vertexloop called with nullptr.");
+	}
+
+	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_previous_fast(HalfEdgeMesh::HalfEdge* current)
+	{
+		HalfEdge* start = current;
+		while(current && vertex_loop_next(current) != start)
+			current = vertex_loop_next(current);
+		return current;
+	}
+
+	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_previous_bruteforce(HalfEdgeMesh::HalfEdge* current) const
+	{
+		auto it{std::find_if(half_edges.begin(), half_edges.end(), [current] (const auto& pair) { return pair.second->next_edge == current; })};
+		if(it != half_edges.end())
+			return it->second.get();
+		return nullptr;
+	}
+
+	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_previous_adaptive(HalfEdgeMesh::HalfEdge* current) const
+	{
+		HalfEdge* prev = vertex_loop_previous_fast(current);
+		return (prev) ? prev : vertex_loop_previous_bruteforce(current);
 	}
 }
