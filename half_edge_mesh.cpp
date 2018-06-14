@@ -130,39 +130,96 @@ namespace cg
 
 	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::face_loop_next(HalfEdgeMesh::HalfEdge* current)
 	{
-		if(current && current->next_edge)
+		if(!current)
+			throw std::invalid_argument("HalfEdgeMesh: Faceloop called with nullptr.");
+
+		if(current->next_edge)
 			return current->next_edge->companion_edge;
-		if(current)
-			return nullptr;
-		throw std::invalid_argument("HalfEdgeMesh: Faceloop called with nullptr.");
+
+		return nullptr;
 	}
 
 	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_next(HalfEdgeMesh::HalfEdge* current)
 	{
-		if(current)
-			return current->next_edge;
-		throw std::invalid_argument("HalfEdgeMesh: Vertexloop called with nullptr.");
+		if(!current)
+			throw std::invalid_argument("HalfEdgeMesh: Vertexloop called with nullptr.");
+
+		return current->next_edge;
 	}
 
-	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_previous_fast(HalfEdgeMesh::HalfEdge* current)
+	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_prev(HalfEdgeMesh::HalfEdge* current)
 	{
+		if(!current)
+			throw std::invalid_argument{"HalfEdgeMesh: Reverse vertex loop called with nullptr."};
+
 		HalfEdge* start = current;
-		while(current && vertex_loop_next(current) != start)
-			current = vertex_loop_next(current);
+		current = start->companion_edge;
+		while(current && (current = face_loop_next(current)) && vertex_loop_next(current) != start)
+		{}
+
 		return current;
 	}
 
-	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_previous_bruteforce(HalfEdgeMesh::HalfEdge* current) const
+	int HalfEdgeMesh::vertex_count(HalfEdgeMesh::Face* face)
 	{
-		auto it{std::find_if(half_edges.begin(), half_edges.end(), [current] (const auto& pair) { return pair.second->next_edge == current; })};
-		if(it != half_edges.end())
-			return it->second.get();
-		return nullptr;
+		if(!face)
+			throw std::invalid_argument{"HalfEdgeMesh: Vertex count called with nullptr."};
+
+		int count = 0;
+		HalfEdge* current = face->edge;
+		while(current && (face_loop_next(current)) != face->edge)
+			++count;
+		return count;
 	}
 
-	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_previous_adaptive(HalfEdgeMesh::HalfEdge* current) const
+	void HalfEdgeMesh::half_edge_collapse(HalfEdgeMesh::HalfEdge* edge)
 	{
-		HalfEdge* prev = vertex_loop_previous_fast(current);
-		return (prev) ? prev : vertex_loop_previous_bruteforce(current);
+		if(!edge)
+			throw std::invalid_argument{"HalfEdgeMesh: Half edge collapse called with nullptr."};
+
+		// Loop around collapsing vertex and set vertex pointers to the companions vertex
+		HalfEdge* current = vertex_loop_next(edge);
+		HalfEdge* next;
+		while(current && (next = vertex_loop_next(current)) != edge)
+		{
+			current->next_vertex = edge->companion_edge->next_vertex;
+			current = next;
+		}
+		// If a full vertex loop was not possible, go backwards
+		if(!current)
+		{
+			current = vertex_loop_prev(edge);
+			while(current && (next = vertex_loop_prev(current)) != edge)
+			{
+				current->next_vertex = edge->companion_edge->next_vertex;
+				current = next;
+			}
+		}
+
+		// Find out if the clockwise face exists and if it is going to be degenerate after the collapse
+		if(edge->face)
+		{
+			if(vertex_count(edge->face) == 3)
+			{
+				// Face will be degenerate -> delete face and its edges
+			}
+			else
+			{
+				// Face will not be degenerate
+			}
+		}
+
+		// Find out if the counter clockwise face exists and if it is going to be degenerate after the collapse
+		if(edge->companion_edge->face)
+		{
+			if(vertex_count(edge->companion_edge->face) == 3)
+			{
+				// Face will be degenerate -> delete face and its edges
+			}
+			else
+			{
+				// Face will not be degenerate
+			}
+		}
 	}
 }

@@ -40,18 +40,24 @@ namespace cg
 			};
 
 			/// Returns current->next->companion, or nullptr if current->next does not exist.
-			/// Throws when called with nullptr
+			/// Throws when called with nullptr.
 			static HalfEdge* face_loop_next(HalfEdge* current);
 			/// Returns current->next.
-			/// Throws when called with nullptr
+			/// Throws when called with nullptr.
 			static HalfEdge* vertex_loop_next(HalfEdge* current);
 
-			/// Goes forwards until the half edge before current or nullptr is reached. If nullptr is reached, nullptr is returned.
-			static HalfEdge* vertex_loop_previous_fast(HalfEdge* current);
-			/// Searches through all half edges and returns the first pointing to current. If no half edge is found, returns nullptr.
-			HalfEdge* vertex_loop_previous_bruteforce(HalfEdge* current) const;
-			/// Tries vertex_loop_previous_fast, if it fails, uses vertex_loop_previous_bruteforce.
-			HalfEdge* vertex_loop_previous_adaptive(HalfEdge* current) const;
+			/// Finds the previous half edge in a vertex loop by starting a face loop from the companion.
+			/// Returns nullptr, if a boundary is reached.
+			/// Throws when called with nullptr.
+			static HalfEdge* vertex_loop_prev(HalfEdge* current);
+
+			/// Returns the number of vertices the given face has.
+			/// Throws when called with nullptr.
+			static int vertex_count(Face* face);
+
+			/// Collapses the given halfedge towards the vertex of its companion.
+			/// Throws when called with nullptr.
+			static void half_edge_collapse(HalfEdge* edge);
 
 			explicit HalfEdgeMesh() = delete;
 			explicit HalfEdgeMesh(const SoupMesh& soup);

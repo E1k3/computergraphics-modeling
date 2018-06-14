@@ -7,7 +7,16 @@ find_package(glfw3 REQUIRED)
 find_package(assimp REQUIRED)
 find_package(GLEW REQUIRED)
 # glm config module is broken on archlinux atm
-# find_package(glm REQUIRED)
+find_path(GLM_INCLUDE_DIR glm)
+find_path(GSL_INCLUDE_DIR gsl)
+
+if(GLM_INCLUDE_DIR STREQUAL "GLM_INCLUDE_DIR-NOTFOUND")
+	message(FATAL_ERROR "Could not find OpenGL Mathematics library.")
+endif()
+
+if(GSL_INCLUDE_DIR STREQUAL "GSL_INCLUDE_DIR-NOTFOUND")
+  message(FATAL_ERROR "Could not find Guidelines Support Library.")
+endif()
 
 # Assignment 1
 add_executable(assignment1
@@ -22,7 +31,9 @@ add_executable(assignment1
 target_include_directories(assignment1
 	PUBLIC ${OPENGL_INCLUDE_DIR}
 	PUBLIC ${GLEW_INCLUDE_DIRS}
-	PUBLIC ${ASSIMP_INCLUDE_DIRS})
+	PUBLIC ${ASSIMP_INCLUDE_DIRS}
+	PUBLIC ${GLM_INCLUDE_DIR}
+	PUBLIC ${GSL_INCLUDE_DIR})
 
 target_link_libraries(assignment1
 	OpenGL::OpenGL
@@ -47,7 +58,9 @@ add_executable(assignment2
 target_include_directories(assignment2
 	PUBLIC ${OPENGL_INCLUDE_DIR}
 	PUBLIC ${GLEW_INCLUDE_DIRS}
-	PUBLIC ${ASSIMP_INCLUDE_DIRS})
+	PUBLIC ${ASSIMP_INCLUDE_DIRS}
+	PUBLIC ${GLM_INCLUDE_DIR}
+	PUBLIC ${GSL_INCLUDE_DIR})
 
 target_link_libraries(assignment2
 	OpenGL::OpenGL
