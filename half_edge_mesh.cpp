@@ -169,6 +169,10 @@ namespace cg
 		HalfEdge* current = face->edge;
 		while(current && (face_loop_next(current)) != face->edge)
 			++count;
+
+		if(!current)
+			throw std::runtime_error{"HalfEdgeMesh: Face loop in vertex count reached nullptr."};
+
 		return count;
 	}
 
@@ -177,7 +181,7 @@ namespace cg
 		if(!edge)
 			throw std::invalid_argument{"HalfEdgeMesh: Half edge collapse called with nullptr."};
 
-		// Loop around collapsing vertex and set vertex pointers to the companions vertex
+		// Loop around collapsing vertex and set vertex pointers to the opposite vertex
 		HalfEdge* current = vertex_loop_next(edge);
 		HalfEdge* next;
 		while(current && (next = vertex_loop_next(current)) != edge)
@@ -185,40 +189,31 @@ namespace cg
 			current->next_vertex = edge->companion_edge->next_vertex;
 			current = next;
 		}
-		// If a full vertex loop was not possible, go backwards
+		// If a full vertex loop was not possible, don't even try
 		if(!current)
-		{
-			current = vertex_loop_prev(edge);
-			while(current && (next = vertex_loop_prev(current)) != edge)
-			{
-				current->next_vertex = edge->companion_edge->next_vertex;
-				current = next;
-			}
-		}
+			throw std::invalid_argument{"HalfEdgeMesh: Half edge collapse called with boundary facing half edge."};
 
-		// Find out if the clockwise face exists and if it is going to be degenerate after the collapse
 		if(edge->face)
 		{
+			
+			// Check if face will be degenerate after collapse.
 			if(vertex_count(edge->face) == 3)
 			{
-				// Face will be degenerate -> delete face and its edges
 			}
 			else
 			{
-				// Face will not be degenerate
 			}
 		}
 
 		// Find out if the counter clockwise face exists and if it is going to be degenerate after the collapse
 		if(edge->companion_edge->face)
 		{
+			// Check if face will be degenerate after collapse.
 			if(vertex_count(edge->companion_edge->face) == 3)
 			{
-				// Face will be degenerate -> delete face and its edges
 			}
 			else
 			{
-				// Face will not be degenerate
 			}
 		}
 	}
