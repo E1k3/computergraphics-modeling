@@ -81,8 +81,9 @@ namespace cg
 				he->face->edge = he.get();
 		}
 
-		// Sort vertices for fast index calculation
-		std::sort(vertices.begin(), vertices.end(), [] (const auto& v1, const auto& v2) { return v1.get() < v2.get(); });
+		// Sort vertices and faces for fast search for pointers
+		std::sort(vertices.begin(), vertices.end());
+		std::sort(faces.begin(), faces.end());
 
 		std::cout << "HalfEdgeMesh: Successfully created HalfEdgeMesh from SoupMesh with " << faces.size() << " faces, " << half_edges.size() << " half edges and " << vertices.size() << " vertices\n";
 	}
@@ -147,12 +148,25 @@ namespace cg
 		return current->next_edge;
 	}
 
+	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::face_loop_prev(HalfEdgeMesh::HalfEdge* current)
+	{
+		if(!current)
+			throw std::invalid_argument{"HalfEdgeMesh: Reverse vertex loop called with nullptr."};
+
+		const HalfEdge* start{current};
+		HalfEdge* next;
+		while(current && (next = face_loop_next(current)) != start)
+			current = next;
+
+		return current;
+	}
+
 	HalfEdgeMesh::HalfEdge* HalfEdgeMesh::vertex_loop_prev(HalfEdgeMesh::HalfEdge* current)
 	{
 		if(!current)
 			throw std::invalid_argument{"HalfEdgeMesh: Reverse vertex loop called with nullptr."};
 
-		HalfEdge* start = current;
+		const HalfEdge* start{current};
 		current = start->companion_edge;
 		while(current && (current = face_loop_next(current)) && vertex_loop_next(current) != start)
 		{}
@@ -165,9 +179,9 @@ namespace cg
 		if(!face)
 			throw std::invalid_argument{"HalfEdgeMesh: Vertex count called with nullptr."};
 
-		int count = 0;
-		HalfEdge* current = face->edge;
-		while(current && (face_loop_next(current)) != face->edge)
+		int count{0};
+		HalfEdge* current{face->edge};
+		while(current && (current = face_loop_next(current)) != face->edge)
 			++count;
 
 		if(!current)
@@ -176,45 +190,124 @@ namespace cg
 		return count;
 	}
 
-	void HalfEdgeMesh::half_edge_collapse(HalfEdgeMesh::HalfEdge* edge)
+	float HalfEdgeMesh::half_edge_simplify(float factor)
 	{
-		if(!edge)
-			throw std::invalid_argument{"HalfEdgeMesh: Half edge collapse called with nullptr."};
+		if(factor <= 0.f || factor >= 1.f)
+			throw std::invalid_argument{"HalfEdgeMesh: Half edge simplify called with factor outside (0, 1)."};
 
-		// Loop around collapsing vertex and set vertex pointers to the opposite vertex
-		HalfEdge* current = vertex_loop_next(edge);
-		HalfEdge* next;
-		while(current && (next = vertex_loop_next(current)) != edge)
-		{
-			current->next_vertex = edge->companion_edge->next_vertex;
-			current = next;
-		}
-		// If a full vertex loop was not possible, don't even try
-		if(!current)
-			throw std::invalid_argument{"HalfEdgeMesh: Half edge collapse called with boundary facing half edge."};
+		auto has_boundary{[] (Vertex* v) {
+			HalfEdge* current = v->edge;
+			while(current && current != v->edge)
+				current = vertex_loop_next(current);
+			return current == nullptr;
+		}};
 
-		if(edge->face)
+		std::unordered_map<HalfEdge*, float> edges{};
+		for(const auto& he : half_edges)
 		{
-			
-			// Check if face will be degenerate after collapse.
-			if(vertex_count(edge->face) == 3)
+			// Add at most one half edge per edge
+			// Do not add half edges that have a boundary at their vertex
+			if(!edges.count(he.second->companion_edge) &&
+					!has_boundary(he.second->next_vertex))
 			{
-			}
-			else
-			{
+				edges[he.second.get()] = glm::distance(he.second->next_vertex->position, he.second->companion_edge->next_vertex->position);
 			}
 		}
+		
+		const auto original_edge_count{half_edges.size() / 2};
 
-		// Find out if the counter clockwise face exists and if it is going to be degenerate after the collapse
-		if(edge->companion_edge->face)
+		while(edges.size() > 0 && original_edge_count * factor < half_edges.size() / 2)
 		{
-			// Check if face will be degenerate after collapse.
-			if(vertex_count(edge->companion_edge->face) == 3)
+			HalfEdge* edge{std::min_element(edges.begin(), edges.end(), 
+					[] (const auto& a, const auto& b) { return a.second < b.second; })->first};
+
+			// Loop around collapsing vertex and set vertex pointers to the opposite vertex
 			{
+				HalfEdge* current{vertex_loop_next(edge)};
+				HalfEdge* next;
+				while(current && (next = vertex_loop_next(current)) != edge)
+				{
+					current->next_vertex = edge->companion_edge->next_vertex;
+					current = next;
+				}
+				// If a full vertex loop was not possible, don't even try
+				if(!current)
+					throw std::runtime_error{"HalfEdgeMesh: Half edge collapse called with boundary facing half edge."};
 			}
-			else
+
+			if(edge->face)
 			{
+				HalfEdge* fl_prev{face_loop_prev(edge)};
+				HalfEdge* fl_next{face_loop_next(edge)};
+				if(!fl_prev || !fl_next)
+					throw std::runtime_error{"HalfEdgeMesh: Face loop in edge collapse reached nullptr."};
+
+				// Leap over the collapsing edge
+				fl_prev->next_edge = fl_next;
+				// Set edge reference of the face to a non collapsing edge
+				if(edge->face->edge == edge)
+					edge->face->edge = fl_next;
+
+				//// Check if face will be degenerate after collapse.TODO
+				//if(false && vertex_count(edge->face) == 3)
+				//{
+				//	HalfEdge* start{face_loop_next(edge)};
+				//	HalfEdge* current{start};
+				//	HalfEdge* next;
+				//	while(current && (next = vertex_loop_next(current)) != start)
+				//		current = next;
+				//	if(!current)
+				//		throw std::runtime_error{"HalfEdgeMesh: Vertex loop in mesh simplify reached nullptr."};
+				//	current->next_edge = vertex_loop_next(start);
+				//	edges.erase(start);
+				//}
+
+				//if(vertex_count(edge->face) < 3)
+				//	throw std::runtime_error{"HalfEdgeMesh: Encountered degenerate mesh in half edge simplify."};
 			}
+
+			// Find out if the counter clockwise face exists and if it is going to be degenerate after the collapse
+			if(edge->companion_edge->face)
+			{
+				HalfEdge* fl_prev{face_loop_prev(edge->companion_edge)};
+				HalfEdge* fl_next{face_loop_next(edge->companion_edge)};
+				if(!fl_prev || !fl_next)
+					throw std::runtime_error{"HalfEdgeMesh: Face loop in edge collapse reached nullptr."};
+
+				// Leap over the collapsing edge
+				fl_prev->next_edge = fl_next;
+				// Set edge reference of the face to a non collapsing edge
+				if(edge->companion_edge->face->edge == edge->companion_edge)
+					edge->companion_edge->face->edge = fl_next;
+
+				//// Check if face will be degenerate after collapse.TODO
+				//if(vertex_count(edge->companion_edge->face) == 3)
+				//{
+				//}
+
+				//if(vertex_count(edge->companion_edge->face) < 3)
+				//	throw std::runtime_error{"HalfEdgeMesh: Encountered degenerate mesh in half edge simplify."};
+			}
+
+			// Save modified length of adjacent edges
+			HalfEdge* current = edge->companion_edge;
+			while(current && current != edge->companion_edge)
+			{
+				if(edges.count(current))
+					edges[current] = glm::distance(current->next_vertex->position, current->companion_edge->next_vertex->position);
+				else if(edges.count(current->companion_edge))
+					edges[current->companion_edge] = glm::distance(current->next_vertex->position, current->companion_edge->next_vertex->position);
+				current = vertex_loop_next(current);
+			}
+
+			// Remove the half edges and the vertex
+			edges.erase(edge);
+			half_edges.erase(EdgeKey{edge->next_vertex, edge->companion_edge->next_vertex});
+			half_edges.erase(EdgeKey{edge->companion_edge->next_vertex, edge->next_vertex});
+			vertices.erase(std::lower_bound(vertices.begin(), vertices.end(), edge->next_vertex, [] (const auto& a_uptr, const Vertex* b_rptr) { return a_uptr.get() < b_rptr; }));
+			std::cout << "Removed edge, " << static_cast<float>(half_edges.size() / 2) / original_edge_count << '/' << factor << " done\n";
 		}
+
+		return static_cast<float>(half_edges.size()/2) / original_edge_count;
 	}
 }

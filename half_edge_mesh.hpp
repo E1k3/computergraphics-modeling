@@ -39,13 +39,19 @@ namespace cg
 				Vertex* next_vertex{nullptr};
 			};
 
-			/// Returns current->next->companion, or nullptr if current->next does not exist.
+			/// Returns next half edge in a face loop around current->face or nullptr if one is reached.
 			/// Throws invalid_argument when called with nullptr.
 			static HalfEdge* face_loop_next(HalfEdge* current);
-			/// Returns current->next.
+
+			/// Returns next half edge in a vertex loop around current->next_vertex or nullptr if one is reached.
 			/// Throws invalid_argument when called with nullptr.
 			static HalfEdge* vertex_loop_next(HalfEdge* current);
 
+			/// Returns nullptr, if one is reached.
+			/// Throws when called with nullptr.
+			static HalfEdge* face_loop_prev(HalfEdge* current);
+
+			/// Reverse vertex loop using a full face loop.
 			/// Returns nullptr, if a boundary is reached.
 			/// Throws when called with nullptr.
 			static HalfEdge* vertex_loop_prev(HalfEdge* current);
@@ -54,10 +60,10 @@ namespace cg
 			/// Throws invalid_argument when called with nullptr.
 			static int vertex_count(Face* face);
 
-			/// Collapses the given halfedge towards the vertex of its companion.
-			/// Returns false, if the collapse fails (e.g. because it happens close to a boundary), otherwise returns true.
-			/// Throws invalid_argument when called with nullptr.
-			static void half_edge_collapse(HalfEdge* edge);
+			/// Uses multiple half edge collapses to simplify the mesh until the given proportion of edges is removed
+			/// or the mesh cannot be further simplified.
+			/// Returns the achieved proportion of removed edges.
+			float half_edge_simplify(float factor);
 
 			explicit HalfEdgeMesh() = delete;
 			explicit HalfEdgeMesh(const SoupMesh& soup);
