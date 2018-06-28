@@ -63,7 +63,7 @@ namespace cg
 			/// Uses multiple half edge collapses to simplify the mesh until the given proportion of edges is removed
 			/// or the mesh cannot be further simplified.
 			/// Returns the achieved proportion of removed edges.
-			float half_edge_simplify(float factor);
+			//float half_edge_simplify(float factor);
 
 			explicit HalfEdgeMesh() = delete;
 			explicit HalfEdgeMesh(const SoupMesh& soup);
