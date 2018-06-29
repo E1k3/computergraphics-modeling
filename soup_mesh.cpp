@@ -93,7 +93,7 @@ namespace cg
 		std::cout << "SoupMesh: Successfully loaded and merged " << scene->mNumMeshes << " meshes with " << positions.size() << " vertices total from \"" << file_path << "\"\n"; 
 	}
 
-	SoupMesh::SoupMesh(const std::vector<glm::vec3> vertex_positions, const std::vector<glm::vec3>& vertex_normals, const std::vector<glm::vec2>& vertex_texture_coordinates, const std::vector<std::vector<unsigned int>>& mesh_faces)
+	SoupMesh::SoupMesh(const std::vector<glm::vec3>& vertex_positions, const std::vector<glm::vec3>& vertex_normals, const std::vector<glm::vec2>& vertex_texture_coordinates, const std::vector<std::vector<unsigned int>>& mesh_faces)
 		: positions{vertex_positions},
 		  normals{vertex_normals},
 		  texture_coordinates{vertex_texture_coordinates},

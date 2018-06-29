@@ -99,11 +99,39 @@ target_compile_features(assignment3 PUBLIC cxx_std_17)
 
 target_compile_options(assignment3 PRIVATE -Wall -Wextra)
 
+# Assignment 4
+add_executable(assignment4
+	assignment4.cpp
+	application.cpp
+	inputmanager.cpp
+	soup_mesh.cpp
+	half_edge_mesh.cpp
+	regular_mesh.cpp
+	glutil.cpp)
+
+target_include_directories(assignment4
+	PUBLIC ${OPENGL_INCLUDE_DIR}
+	PUBLIC ${GLEW_INCLUDE_DIRS}
+	PUBLIC ${ASSIMP_INCLUDE_DIRS}
+	PUBLIC ${GLM_INCLUDE_DIR}
+	PUBLIC ${GSL_INCLUDE_DIR})
+
+target_link_libraries(assignment4
+	OpenGL::OpenGL
+	GLEW::GLEW
+	glfw
+	assimp)
+
+target_compile_features(assignment4 PUBLIC cxx_std_17)
+
+target_compile_options(assignment4 PRIVATE -Wall -Wextra)
+
 # Assets and shaders
 add_custom_target(assignments)
 add_dependencies(assignment1 assignments)
 add_dependencies(assignment2 assignments)
 add_dependencies(assignment3 assignments)
+add_dependencies(assignment4 assignments)
 
 add_custom_command(TARGET assignments POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E create_symlink

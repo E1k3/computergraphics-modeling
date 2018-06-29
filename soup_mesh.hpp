@@ -13,7 +13,7 @@ namespace cg
 		public:
 			explicit SoupMesh() = delete;
 			explicit SoupMesh(const std::string& file_path);
-			explicit SoupMesh(const std::vector<glm::vec3> positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texture_coordinates, const std::vector<std::vector<unsigned int>>& faces);
+			explicit SoupMesh(const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texture_coordinates, const std::vector<std::vector<unsigned int>>& faces);
 
 			const std::vector<glm::vec3>& get_positions() const;
 			const std::vector<glm::vec3>& get_normals() const;
