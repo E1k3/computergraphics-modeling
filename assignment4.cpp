@@ -66,7 +66,7 @@ int main(int /*argc*/, char** /*argv*/)
 	glfwGetFramebufferSize(window, &width, &height);
 	glm::mat4 model{glm::translate(glm::mat4{1.f}, glm::vec3{-0.5f, -0.5f, -0.5f})};
 	glm::mat4 view{glm::scale(glm::mat4{1.f}, glm::vec3{.5f, .5f, .5f})};
-	glm::mat4 project{glm::perspective(glm::radians(95.f), 16.f/9.f, .1f, 100.f)};
+	glm::mat4 project{glm::perspective(glm::radians(75.f), static_cast<float>(width)/height, .1f, 100.f)};
 	glm::mat4 mvp{1.f};
 	float sensitivity{.005f};
 
